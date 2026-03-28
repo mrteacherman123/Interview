@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Binary Search — 19 Problems</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Clash+Display:wght@400;600;700&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+  :root {
+    --bg:#F5F3EE;
+    --ink:#0D0D0D;
+    --muted:#888;
+    --border:#D8D4CC;
+    --panel:#FFFFFF;
+    --tag-bg:#EDEAE4;
+
+    --c1:#1A1AFF;  /* blue */
+    --c2:#FF3B00;  /* red-orange */
+    --c3:#007A3D;  /* green */
+    --c4:#8B00FF;  /* purple */
+    --c5:#C8900A;  /* amber */
+    --c6:#00707A;  /* teal */
+    --c7:#CC0050;  /* crimson */
+    --c8:#2D6A00;  /* dark green */
+    --c9:#0066CC;  /* royal blue */
+    --c10:#6B3FA0; --c11:#B5451B; --c12:#1A6B5C; --c13:#7A5C00;
+    --c14:#00537A; --c15:#5C1A6B; --c16:#1B4332; --c17:#7A1A1A;
+    --c18:#003A6B; --c19:#4A3500;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Epilogue', sans-serif;
+    padding: 0;
+  }
+
+  /* NOISE TEXTURE */
+  body::after {
+    content:'';
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:9999;
+    opacity:.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 200px;
+  }
+
+  /* ---- PAGE HEADER ---- */
+  .page-header {
+    background: var(--ink);
+    color: #fff;
+    padding: 56px 48px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .page-header::before {
+    content:'';
+    position:absolute;
+    right:-60px; top:-60px;
+    width:320px; height:320px;
+    border-radius:50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+  }
+
+  .header-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 20px;
+  }
+
+  .page-header h1 {
+    font-family: 'Epilogue', sans-serif;
+    font-size: clamp(32px, 5vw, 60px);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -1.5px;
+    margin-bottom: 20px;
+  }
+
+  .page-header h1 em {
+    font-style: normal;
+    opacity: 0.35;
+  }
+
+  .header-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .meta-pill {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.6);
+  }
+
+  .back-link {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    margin-left: auto;
+    transition: background 0.2s;
+  }
+  .back-link:hover { background: rgba(255,255,255,0.1); }
+
+  /* ---- GRID ---- */
+  .grid-wrapper {
+    padding: 48px 40px 80px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  @media(max-width: 900px) { .grid-wrapper { grid-template-columns: repeat(2,1fr); } }
+  @media(max-width: 560px) { .grid-wrapper { grid-template-columns: 1fr; padding: 28px 20px 60px; } }
+
+  /* ---- CARD ---- */
+  .card {
+    background: var(--panel);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.1);
+  }
+
+  .card-stripe {
+    height: 4px;
+    width: 100%;
+  }
+
+  .card-head {
+    padding: 20px 22px 0;
+  }
+
+  .card-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .card-title {
+    font-family: 'Epilogue', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    line-height: 1.25;
+    margin-bottom: 10px;
+  }
+
+  .problem-desc {
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .card-viz {
+    padding: 0 16px 14px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .card-viz svg { width:100%; height:95px; display:block; border-radius:8px; }
+
+  /* APPROACH CHIPS */
+  .approaches {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 0 22px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ap-chip {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border-radius: 5px;
+    color: #fff;
+  }
+
+  /* BODY */
+  .card-body {
+    padding: 16px 22px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .insight-block {
+    background: var(--tag-bg);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+
+  .insight-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .insight-text {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #333;
+  }
+
+  .insight-text code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    background: rgba(0,0,0,0.07);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: var(--ink);
+  }
+
+  /* MINI CODE */
+  .mini-code {
+    background: #0F1117;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .mini-code-bar {
+    background: #1C2030;
+    padding: 7px 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .dot { width:9px; height:9px; border-radius:50%; }
+  .dr{background:#FF5F57} .dy{background:#FEBC2E} .dg{background:#28C840}
+
+  .mini-code pre {
+    padding: 14px 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    line-height: 1.75;
+    overflow-x: auto;
+    color: #C9D1D9;
+  }
+
+  .kw{color:#FF79C6}
+  .fn{color:#50FA7B}
+  .cm{color:#6272A4; font-style:italic}
+  .nm{color:#BD93F9}
+  .op{color:#FF6B35}
+  .str2{color:#F1FA8C}
+
+  /* GOTCHA */
+  .gotcha {
+    border-left: 3px solid var(--c2);
+    background: rgba(255,59,0,0.05);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 12px;
+  }
+
+  .gotcha-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--c2);
+    margin-bottom: 5px;
+  }
+
+  .gotcha-text {
+    font-size: 12.5px;
+    color: #555;
+    line-height: 1.5;
+  }
+
+  .gotcha-text code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    background: rgba(255,59,0,0.08);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--c2);
+  }
+
+  /* COMPLEXITY */
+  .complexity-row {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 6px;
+  }
+
+  .cx-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: var(--tag-bg);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  /* PATTERN TAG */
+  .pattern-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 0 22px 16px;
+  }
+
+  .ptag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 3px 9px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: var(--tag-bg);
+  }
+
+  /* page footer */
+  .page-footer {
+    background: var(--ink);
+    color: rgba(255,255,255,0.3);
+    padding: 28px 48px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .page-footer span { color: rgba(255,255,255,0.6); }
+  .page-footer a { color: rgba(255,255,255,0.5); text-decoration: none; }
+  .page-footer a:hover { color: rgba(255,255,255,0.9); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="page-header">
+  <div class="header-eyebrow">Binary Search Mastery — Problem Reference</div>
+  <h1>19 Problems.<br/><em>One Pattern.</em></h1>
+  <div class="header-meta">
+    <span class="meta-pill">Binary Search on Answer</span>
+    <span class="meta-pill">Monotonic Predicate ok(mid)</span>
+    <span class="meta-pill">O(log N) Solutions</span>
+    <span class="meta-pill">Java / Python</span>
+    <a href="index.html" class="back-link">← Pattern Guide</a>
+  </div>
+</header>
+
+<!-- CARDS GRID -->
+<div class="grid-wrapper">
+
+  <!-- 1. Kth Smallest in Sorted Matrix -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c1)"></div>
+    <div class="card-head">
+      <div class="card-num">01 / Matrix</div>
+      <div class="card-title">Kth Smallest Element in Sorted Matrix</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c1)">Binary Search</span>
+      <span class="ap-chip" style="background:#444">Priority Queue</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">n×n matrix where rows &amp; columns are both sorted. Find the kth smallest value overall — not the kth distinct element.</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <rect x="8" y="9" width="39" height="21" rx="2" fill="#E0E4FF" stroke="#9090FF" stroke-width="0.5"/><text x="27" y="24" text-anchor="middle" font-family="monospace" font-size="10" fill="#444">1</text>
+  <rect x="50" y="9" width="39" height="21" rx="2" fill="#C8CCFF" stroke="#8080FF" stroke-width="0.5"/><text x="69" y="24" text-anchor="middle" font-family="monospace" font-size="10" fill="#444">5</text>
+  <rect x="92" y="9" width="39" height="21" rx="2" fill="#A8B0FF" stroke="#7070FF" stroke-width="0.5"/><text x="111" y="24" text-anchor="middle" font-family="monospace" font-size="10" fill="#444">9</text>
+  <rect x="8" y="33" width="39" height="21" rx="2" fill="#7888FF" stroke="#5555FF" stroke-width="0.5"/><text x="27" y="48" text-anchor="middle" font-family="monospace" font-size="10" fill="#fff">10</text>
+  <rect x="50" y="33" width="39" height="21" rx="2" fill="#4455FF" stroke="#3333FF" stroke-width="0.5"/><text x="69" y="48" text-anchor="middle" font-family="monospace" font-size="10" fill="#fff">11</text>
+  <rect x="92" y="33" width="39" height="21" rx="2" fill="#1A1AFF" stroke="#0000CC" stroke-width="2"/><text x="111" y="48" text-anchor="middle" font-family="monospace" font-size="11" fill="#fff" font-weight="bold">13</text>
+  <rect x="8" y="57" width="39" height="21" rx="2" fill="#3030CC" stroke="#2020AA" stroke-width="0.5"/><text x="27" y="72" text-anchor="middle" font-family="monospace" font-size="10" fill="#fff">12</text>
+  <rect x="50" y="57" width="39" height="21" rx="2" fill="#2020AA" stroke="#1010AA" stroke-width="0.5"/><text x="69" y="72" text-anchor="middle" font-family="monospace" font-size="10" fill="#fff">13</text>
+  <rect x="92" y="57" width="39" height="21" rx="2" fill="#101088" stroke="#000088" stroke-width="0.5"/><text x="111" y="72" text-anchor="middle" font-family="monospace" font-size="10" fill="#fff">15</text>
+  <text x="127" y="42" font-family="monospace" font-size="13" fill="#FFD700">★k=8</text>
+  <line x1="155" y1="6" x2="155" y2="88" stroke="#CCC" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="162" y="18" font-family="monospace" font-size="8" fill="#1A1AFF" font-weight="bold">SEARCH VALUE RANGE</text>
+  <rect x="162" y="26" width="106" height="8" rx="4" fill="#E0E4FF"/>
+  <rect x="162" y="26" width="68" height="8" rx="4" fill="#1A1AFF" opacity="0.45"/>
+  <circle cx="230" cy="30" r="5" fill="#1A1AFF"/>
+  <text x="162" y="50" font-family="monospace" font-size="8" fill="#666">lo=1</text>
+  <text x="252" y="50" font-family="monospace" font-size="8" fill="#666">hi=15</text>
+  <text x="220" y="50" font-family="monospace" font-size="8" fill="#1A1AFF">mid</text>
+  <text x="162" y="64" font-family="monospace" font-size="8" fill="#555">count ≤ mid &lt; k?</text>
+  <text x="162" y="76" font-family="monospace" font-size="8" fill="#1A1AFF">→ lo = mid+1</text>
+  <text x="162" y="88" font-family="monospace" font-size="8" fill="#888">else → hi = mid</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight</div>
+        <div class="insight-text">Search over <strong>value range</strong> [matrix[0][0] … matrix[n-1][n-1]], not indices. For each <code>mid</code>, count elements ≤ mid using a two-pointer sweep row-by-row.</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="cm">// count elements ≤ mid</span>
+<span class="kw">int</span> j=n<span class="op">-</span><span class="nm">1</span>, count=<span class="nm">0</span>;
+<span class="kw">for</span>(<span class="kw">int</span> i=<span class="nm">0</span>; i&lt;m; i++) {
+  <span class="kw">while</span>(j&gt;=<span class="nm">0</span> &amp;&amp; matrix[i][j]&gt;mid) j<span class="op">--</span>;
+  count += (j<span class="op">+</span><span class="nm">1</span>);
+}
+<span class="cm">// if count &lt; k → lo=mid+1</span>
+<span class="cm">// else        → hi=mid</span></pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text"><code>j</code> must not reset per row — carry it across rows for O(m+n) counting. The answer always exists in the matrix (no need for contains check).</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O((m+n) log(max−min))</span>
+        <span class="cx-badge">Space: O(1)</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">range search</span>
+      <span class="ptag">count ≤ k</span>
+      <span class="ptag">2D matrix</span>
+    </div>
+  </div>
+
+  <!-- 2. Sqrt -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c2)"></div>
+    <div class="card-head">
+      <div class="card-num">02 / Math</div>
+      <div class="card-title">Integer Square Root — Sqrt(x)</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c2)">Binary Search</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">Given a non-negative integer x, return its integer square root (truncate decimals). No built-in sqrt allowed.</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <polyline points="10,88 45,76 80,60 115,42 150,28 185,18 220,12 255,9" fill="none" stroke="#FF3B00" stroke-width="2" opacity="0.25"/>
+  <line x1="10" y1="42" x2="265" y2="42" stroke="#CCC" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="250" y="39" font-family="monospace" font-size="8" fill="#999">x</text>
+  <line x1="150" y1="8" x2="150" y2="88" stroke="#FF3B00" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <circle cx="150" cy="42" r="6" fill="#FF3B00"/>
+  <text x="126" y="10" font-family="monospace" font-size="9" fill="#FF3B00">floor(√x)</text>
+  <line x1="10" y1="86" x2="265" y2="86" stroke="#888" stroke-width="1.5"/>
+  <circle cx="50" cy="86" r="3" fill="#FFAA88"/><text x="42" y="79" font-family="monospace" font-size="8" fill="#888">lo</text>
+  <circle cx="150" cy="86" r="5" fill="#FF3B00"/><text x="143" y="79" font-family="monospace" font-size="8" fill="#FF3B00">mid</text>
+  <circle cx="248" cy="86" r="3" fill="#FFAA88"/><text x="237" y="79" font-family="monospace" font-size="8" fill="#888">hi=x/2</text>
+  <text x="10" y="18" font-family="monospace" font-size="9" fill="#FF3B00">mid² ≤ x  → lo = mid  (TTTFF)</text>
+  <text x="10" y="31" font-family="monospace" font-size="9" fill="#888">mid² &gt; x  → hi = mid</text>
+  <text x="10" y="57" font-family="monospace" font-size="8" fill="#FF3B00">cast mid² to long!</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight</div>
+        <div class="insight-text">Search over [2 … x/2]. Predicate: <code>mid*mid ≤ x</code>. Find the <strong>largest</strong> mid where this is true → use <code>lo = mid</code> pattern (TTTT'T'FFFF).</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="kw">long</span> lo=<span class="nm">0</span>, hi=x/<span class="nm">2</span><span class="op">+</span><span class="nm">1</span>;
+<span class="kw">while</span>(lo &lt; hi<span class="op">-</span><span class="nm">1</span>) {
+  <span class="kw">long</span> mid = lo + (hi<span class="op">-</span>lo)/<span class="nm">2</span>;
+  <span class="kw">if</span>(mid<span class="op">*</span>mid &lt;= x) lo = mid;
+  <span class="kw">else</span>            hi = mid;
+}
+<span class="kw">return</span> (<span class="kw">int</span>)lo; <span class="cm">// largest valid lo</span></pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text">Cast <code>mid*mid</code> to <code>long</code> to avoid overflow. Handle <code>x ≤ 1</code> separately. Return <code>lo</code> (not <code>hi</code>) — seeking the largest truthy value.</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(log x)</span>
+        <span class="cx-badge">Space: O(1)</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">largest valid</span>
+      <span class="ptag">TTFF boundary</span>
+      <span class="ptag">overflow trap</span>
+    </div>
+  </div>
+
+  <!-- 3. Find Peak Element -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c3)"></div>
+    <div class="card-head">
+      <div class="card-num">03 / Array</div>
+      <div class="card-title">Find Peak Element</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c3)">Binary Search</span>
+      <span class="ap-chip" style="background:#444">Recursive</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">Array where nums[i] ≠ nums[i+1]. Find any index where the element is greater than both its neighbors. Multiple peaks may exist.</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <polygon points="10,86 55,70 100,50 145,22 190,50 235,70 268,82 268,88 10,88" fill="#007A3D" opacity="0.08"/>
+  <polyline points="10,86 55,70 100,50 145,22 190,50 235,70 268,82" fill="none" stroke="#007A3D" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="145" cy="22" r="11" fill="#007A3D" opacity="0.2"/>
+  <circle cx="145" cy="22" r="6" fill="#007A3D"/>
+  <text x="145" y="14" text-anchor="middle" font-family="monospace" font-size="8" fill="#007A3D">peak</text>
+  <line x1="100" y1="50" x2="100" y2="88" stroke="#007A3D" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="90" y="88" font-family="monospace" font-size="8" fill="#888">mid</text>
+  <line x1="145" y1="22" x2="145" y2="88" stroke="#CCC" stroke-width="1" stroke-dasharray="2,3"/>
+  <text x="11" y="16" font-family="monospace" font-size="8" fill="#007A3D">nums[mid] &lt; nums[mid+1]</text>
+  <text x="11" y="28" font-family="monospace" font-size="8" fill="#555">→ peak is RIGHT → lo=mid</text>
+  <text x="11" y="42" font-family="monospace" font-size="8" fill="#007A3D">nums[mid] &gt; nums[mid+1]</text>
+  <text x="11" y="54" font-family="monospace" font-size="8" fill="#555">→ peak is HERE/LEFT → hi=mid</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight</div>
+        <div class="insight-text">If <code>nums[mid] &gt; nums[mid+1]</code>, a peak exists on the left (including mid). Otherwise, it exists strictly to the right. Boundaries: <code>nums[-1]=nums[n]=−∞</code> guarantees a peak always exists.</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="kw">int</span> l=<span class="op">-</span><span class="nm">1</span>, r=nums.length<span class="op">-</span><span class="nm">1</span>;
+<span class="kw">while</span>(l<span class="op">+</span><span class="nm">1</span> &lt; r) {
+  <span class="kw">int</span> mid = (l<span class="op">+</span>r)/<span class="nm">2</span>;
+  <span class="kw">if</span>(nums[mid] &gt; nums[mid<span class="op">+</span><span class="nm">1</span>]) r=mid;
+  <span class="kw">else</span>                         l=mid;
+}
+<span class="kw">return</span> r; <span class="cm">// hi holds peak</span></pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text">Return <code>r</code> (hi), not <code>l</code>. The predicate <code>ok(mid)</code> = nums[mid] &gt; nums[mid+1] is <strong>TTTT'T'FFFF</strong>: we seek last T → return <code>r</code>.</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(log n)</span>
+        <span class="cx-badge">Space: O(1)</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">local condition</span>
+      <span class="ptag">return hi</span>
+      <span class="ptag">virtual boundaries</span>
+    </div>
+  </div>
+
+  <!-- 4. Search in Rotated Sorted Array -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c4)"></div>
+    <div class="card-head">
+      <div class="card-num">04 / Rotated</div>
+      <div class="card-title">Search in Rotated Sorted Array</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c4)">Two-Phase BS</span>
+      <span class="ap-chip" style="background:#444">Single Pass</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">Sorted array rotated at an unknown pivot (e.g. [4,5,6,7,0,1,2]). Find the index of a target, or -1. Must be O(log n).</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <rect x="8" y="28" width="26" height="22" rx="2" fill="#EAD8FF" stroke="#8B00FF" stroke-width="0.5"/><text x="21" y="43" text-anchor="middle" font-family="monospace" font-size="11" fill="#5500BB">4</text>
+  <rect x="37" y="28" width="26" height="22" rx="2" fill="#D8C0FF" stroke="#8B00FF" stroke-width="0.5"/><text x="50" y="43" text-anchor="middle" font-family="monospace" font-size="11" fill="#5500BB">5</text>
+  <rect x="66" y="28" width="26" height="22" rx="2" fill="#C8A8FF" stroke="#8B00FF" stroke-width="0.5"/><text x="79" y="43" text-anchor="middle" font-family="monospace" font-size="11" fill="#5500BB">6</text>
+  <rect x="95" y="28" width="26" height="22" rx="2" fill="#B090FF" stroke="#8B00FF" stroke-width="0.5"/><text x="108" y="43" text-anchor="middle" font-family="monospace" font-size="11" fill="#fff">7</text>
+  <line x1="126" y1="20" x2="126" y2="58" stroke="#FF3B00" stroke-width="2.5"/>
+  <text x="114" y="16" font-family="monospace" font-size="8" fill="#FF3B00">pivot</text>
+  <rect x="130" y="28" width="26" height="22" rx="2" fill="#8B00FF" stroke="#6600CC" stroke-width="1.5"/><text x="143" y="43" text-anchor="middle" font-family="monospace" font-size="11" fill="#fff">0</text>
+  <circle cx="143" cy="39" r="14" fill="none" stroke="#FF6B35" stroke-width="2"/>
+  <text x="127" y="17" font-family="monospace" font-size="7.5" fill="#FF6B35">target</text>
+  <rect x="160" y="28" width="26" height="22" rx="2" fill="#6F00EE" stroke="#5500CC" stroke-width="0.5"/><text x="173" y="43" text-anchor="middle" font-family="monospace" font-size="11" fill="#fff">1</text>
+  <rect x="189" y="28" width="26" height="22" rx="2" fill="#5300CC" stroke="#4400AA" stroke-width="0.5"/><text x="202" y="43" text-anchor="middle" font-family="monospace" font-size="11" fill="#fff">2</text>
+  <text x="8" y="20" font-family="monospace" font-size="8" fill="#8B00FF">sorted ①</text>
+  <text x="130" y="20" font-family="monospace" font-size="8" fill="#8B00FF">sorted ②</text>
+  <text x="8" y="66" font-family="monospace" font-size="8" fill="#555">① find pivot  ② which half is sorted?</text>
+  <text x="8" y="78" font-family="monospace" font-size="8" fill="#8B00FF">③ is target in sorted half? → search it</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight (Two-Phase)</div>
+        <div class="insight-text"><strong>Phase 1:</strong> Find pivot (min index) using <code>nums[mid] ≤ nums[last]</code>.<br/><strong>Phase 2:</strong> Target ≥ nums[0]? Binary search left half. Else right half.</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="cm">// Single-pass approach</span>
+<span class="kw">if</span>(nums[mid]&gt;=nums[start]) {
+  <span class="cm">// left half is sorted</span>
+  <span class="kw">if</span>(target&gt;=nums[start] &amp;&amp;
+     target&lt;nums[mid])  end=mid<span class="op">-</span><span class="nm">1</span>;
+  <span class="kw">else</span>                 start=mid<span class="op">+</span><span class="nm">1</span>;
+} <span class="kw">else</span> {
+  <span class="cm">// right half is sorted</span>
+  <span class="kw">if</span>(target&gt;nums[mid] &amp;&amp;
+     target&lt;=nums[end]) start=mid<span class="op">+</span><span class="nm">1</span>;
+  <span class="kw">else</span>                 end=mid<span class="op">-</span><span class="nm">1</span>;
+}</pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text">The predicate for finding pivot is <code>nums[mid] ≤ nums[last]</code> → FFFF'T'TTTT. After finding pivot, do standard binary search on the correct half.</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(log n)</span>
+        <span class="cx-badge">Space: O(1)</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">find pivot first</span>
+      <span class="ptag">half sorted</span>
+      <span class="ptag">two phases</span>
+    </div>
+  </div>
+
+  <!-- 5. Find Min in Rotated -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c5)"></div>
+    <div class="card-head">
+      <div class="card-num">05 / Rotated</div>
+      <div class="card-title">Find Minimum in Rotated Sorted Array</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c5)">Binary Search</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">Same rotated array as #4. This time just find the minimum element (which is the pivot point) in O(log n).</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <rect x="8" y="32" width="30" height="22" rx="2" fill="#FCECC0" stroke="#C8900A" stroke-width="0.5"/><text x="23" y="47" text-anchor="middle" font-family="monospace" font-size="11" fill="#7A5500">5</text>
+  <rect x="41" y="32" width="30" height="22" rx="2" fill="#F5DC90" stroke="#C8900A" stroke-width="0.5"/><text x="56" y="47" text-anchor="middle" font-family="monospace" font-size="11" fill="#7A5500">6</text>
+  <line x1="75" y1="24" x2="75" y2="62" stroke="#C8900A" stroke-width="2.5"/>
+  <rect x="79" y="28" width="30" height="30" rx="2" fill="#C8900A" stroke="#8A6000" stroke-width="2"/>
+  <text x="94" y="47" text-anchor="middle" font-family="monospace" font-size="12" fill="#fff" font-weight="bold">1</text>
+  <circle cx="94" cy="43" r="17" fill="none" stroke="#C8900A" stroke-width="2" stroke-dasharray="4,2"/>
+  <text x="80" y="20" font-family="monospace" font-size="8" fill="#C8900A">min = pivot</text>
+  <rect x="113" y="32" width="30" height="22" rx="2" fill="#FCECC0" stroke="#C8900A" stroke-width="0.5"/><text x="128" y="47" text-anchor="middle" font-family="monospace" font-size="11" fill="#7A5500">2</text>
+  <rect x="146" y="32" width="30" height="22" rx="2" fill="#F5DC90" stroke="#C8900A" stroke-width="0.5"/><text x="161" y="47" text-anchor="middle" font-family="monospace" font-size="11" fill="#7A5500">3</text>
+  <rect x="179" y="32" width="30" height="22" rx="2" fill="#ECC860" stroke="#C8900A" stroke-width="0.5"/><text x="194" y="47" text-anchor="middle" font-family="monospace" font-size="11" fill="#7A5500">4</text>
+  <text x="8" y="72" font-family="monospace" font-size="8" fill="#C8900A">ok(mid): nums[mid] ≤ nums[last]</text>
+  <text x="8" y="84" font-family="monospace" font-size="8" fill="#888">FF'T'TTTT → seek first true → hi=mid</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight</div>
+        <div class="insight-text">Predicate <code>ok(mid)</code>: is <code>nums[mid] ≤ nums[last]</code>? This is <strong>FFFF'T'TTTT</strong>. We want the <em>first</em> true → use <code>hi = mid</code> and return <code>hi</code> at end.</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="kw">int</span> lo=<span class="op">-</span><span class="nm">1</span>, hi=nums.length<span class="op">-</span><span class="nm">1</span>;
+<span class="kw">while</span>(hi &gt; lo<span class="op">+</span><span class="nm">1</span>) {
+  <span class="kw">int</span> mid = lo + (hi<span class="op">-</span>lo)/<span class="nm">2</span>;
+  <span class="cm">// FF'T'TTTT → seek first T</span>
+  <span class="kw">if</span>(nums[mid]&lt;=nums[nums.length<span class="op">-</span><span class="nm">1</span>])
+       hi = mid;
+  <span class="kw">else</span> lo = mid;
+}
+<span class="kw">return</span> nums[hi]; <span class="cm">// hi = pivot = min</span></pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text">Compare against <code>nums[last]</code> (not <code>nums[lo]</code>). For non-rotated arrays (nums[0]&lt;nums[n-1]), the answer is simply nums[0] — handle as special case optionally.</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(log n)</span>
+        <span class="cx-badge">Space: O(1)</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">first true</span>
+      <span class="ptag">FFTT boundary</span>
+      <span class="ptag">compare to last</span>
+    </div>
+  </div>
+
+  <!-- 6. Pow(x, n) -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c6)"></div>
+    <div class="card-head">
+      <div class="card-num">06 / Math</div>
+      <div class="card-title">Pow(x, n) — Fast Exponentiation</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c6)">Divide &amp; Conquer</span>
+      <span class="ap-chip" style="background:#444">Bit Manipulation</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">Implement pow(x, n) for any real x and integer n (including negatives). Must run in O(log n), not O(n).</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <line x1="140" y1="25" x2="80" y2="50" stroke="#CCC" stroke-width="1.5"/>
+  <line x1="140" y1="25" x2="200" y2="50" stroke="#CCC" stroke-width="1.5"/>
+  <line x1="80" y1="60" x2="50" y2="78" stroke="#CCC" stroke-width="1.5"/>
+  <line x1="80" y1="60" x2="110" y2="78" stroke="#CCC" stroke-width="1.5"/>
+  <rect x="100" y="10" width="80" height="22" rx="11" fill="#00707A"/><text x="140" y="25" text-anchor="middle" font-family="monospace" font-size="10" fill="#fff">pow(x, n)</text>
+  <rect x="42" y="47" width="76" height="20" rx="10" fill="#00707A" opacity="0.7"/><text x="80" y="61" text-anchor="middle" font-family="monospace" font-size="9" fill="#fff">pow(x, n/2)</text>
+  <rect x="160" y="47" width="72" height="20" rx="10" fill="#E8F4F5" stroke="#00707A" stroke-width="1"/><text x="196" y="61" text-anchor="middle" font-family="monospace" font-size="9" fill="#00707A">× itself</text>
+  <rect x="12" y="70" width="76" height="18" rx="9" fill="#00707A" opacity="0.4"/><text x="50" y="83" text-anchor="middle" font-family="monospace" font-size="9" fill="#00707A">pow(x, n/4)</text>
+  <rect x="94" y="70" width="52" height="18" rx="9" fill="#E8F4F5" stroke="#00707A" stroke-width="1"/><text x="120" y="83" text-anchor="middle" font-family="monospace" font-size="9" fill="#00707A">× itself</text>
+  <text x="210" y="75" font-family="monospace" font-size="11" fill="#00707A" font-weight="bold">O(log n)</text>
+  <text x="210" y="89" font-family="monospace" font-size="8" fill="#888">depth=log₂(n)</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight</div>
+        <div class="insight-text">Halve the problem each step: <code>x^n = half*half</code> if n even, <code>half*half*x</code> if odd. This achieves O(log n). For negative n: return <code>1 / power(x, |n|)</code>.</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="kw">double</span> <span class="fn">power</span>(<span class="kw">double</span> x, <span class="kw">int</span> n) {
+  <span class="kw">if</span>(n==<span class="nm">0</span>) <span class="kw">return</span> <span class="nm">1</span>;
+  <span class="kw">double</span> half = <span class="fn">power</span>(x, n/<span class="nm">2</span>);
+  <span class="kw">if</span>(n%<span class="nm">2</span>==<span class="nm">0</span>) <span class="kw">return</span> half<span class="op">*</span>half;
+  <span class="kw">else</span>        <span class="kw">return</span> half<span class="op">*</span>half<span class="op">*</span>x;
+}
+<span class="cm">// caller: n&lt;0 → 1/power(x,|n|)</span></pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text"><code>n = Integer.MIN_VALUE</code>: negating it overflows. Fix: <code>n = n+1</code> before negating, then multiply extra <code>x</code> at end. Also watch iterative: accumulate into <code>res</code> on odd steps.</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(log n)</span>
+        <span class="cx-badge">Space: O(log n) stack</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">halving</span>
+      <span class="ptag">negative n</span>
+      <span class="ptag">INT_MIN edge</span>
+    </div>
+  </div>
+
+  <!-- 7. First and Last Position -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c7)"></div>
+    <div class="card-head">
+      <div class="card-num">07 / Array</div>
+      <div class="card-title">First &amp; Last Position of Element</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c7)">2× Binary Search</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">Sorted array with duplicates. Return the [start, end] indices of a target value. Return [-1,-1] if not found. O(log n).</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <rect x="8" y="24" width="35" height="26" rx="3" fill="#F0F0F0" stroke="#CCC" stroke-width="0.5"/><text x="25" y="41" text-anchor="middle" font-family="monospace" font-size="13" fill="#AAA">5</text>
+  <rect x="46" y="24" width="35" height="26" rx="3" fill="#F0F0F0" stroke="#CCC" stroke-width="0.5"/><text x="63" y="41" text-anchor="middle" font-family="monospace" font-size="13" fill="#AAA">7</text>
+  <rect x="84" y="24" width="35" height="26" rx="3" fill="#F0F0F0" stroke="#CCC" stroke-width="0.5"/><text x="101" y="41" text-anchor="middle" font-family="monospace" font-size="13" fill="#AAA">7</text>
+  <rect x="122" y="20" width="35" height="34" rx="3" fill="#FF2060" stroke="#CC0050" stroke-width="2"/><text x="139" y="41" text-anchor="middle" font-family="monospace" font-size="14" fill="#fff" font-weight="bold">8</text>
+  <rect x="160" y="20" width="35" height="34" rx="3" fill="#FF2060" stroke="#CC0050" stroke-width="2"/><text x="177" y="41" text-anchor="middle" font-family="monospace" font-size="14" fill="#fff" font-weight="bold">8</text>
+  <rect x="198" y="24" width="35" height="26" rx="3" fill="#F0F0F0" stroke="#CCC" stroke-width="0.5"/><text x="215" y="41" text-anchor="middle" font-family="monospace" font-size="12" fill="#AAA">10</text>
+  <text x="13" y="18" font-family="monospace" font-size="8" fill="#888">0</text><text x="51" y="18" font-family="monospace" font-size="8" fill="#888">1</text><text x="89" y="18" font-family="monospace" font-size="8" fill="#888">2</text>
+  <text x="128" y="18" font-family="monospace" font-size="8" fill="#CC0050">3</text><text x="166" y="18" font-family="monospace" font-size="8" fill="#CC0050">4</text><text x="204" y="18" font-family="monospace" font-size="8" fill="#888">5</text>
+  <line x1="122" y1="62" x2="195" y2="62" stroke="#CC0050" stroke-width="2"/>
+  <line x1="122" y1="56" x2="122" y2="68" stroke="#CC0050" stroke-width="2"/>
+  <line x1="195" y1="56" x2="195" y2="68" stroke="#CC0050" stroke-width="2"/>
+  <text x="130" y="80" font-family="monospace" font-size="9" fill="#CC0050">[start=3, end=4]</text>
+  <text x="245" y="38" font-family="monospace" font-size="9" fill="#CC0050">target</text>
+  <text x="248" y="50" font-family="monospace" font-size="9" fill="#CC0050">= 8</text>
+  <text x="8" y="92" font-family="monospace" font-size="8" fill="#888">2× BS: lower bound + upper bound</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight</div>
+        <div class="insight-text">Run binary search <strong>twice</strong> with different predicates. <em>Left bound:</em> <code>nums[mid] ≥ target</code> → first occurrence. <em>Right bound:</em> <code>nums[mid] &gt; target</code> → one past last occurrence, subtract 1.</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="cm">// unified helper: left=true → first</span>
+<span class="kw">if</span>(nums[mid]&gt;target ||
+   (left &amp;&amp; nums[mid]==target))
+     hi = mid;
+<span class="kw">else</span>
+     lo = mid+<span class="nm">1</span>;
+<span class="cm">// right bound: result-1</span>
+<span class="cm">// hi=nums.length (not length-1!)</span></pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text">Set <code>hi = nums.length</code> (not length-1) to handle targets at the very end. After finding left bound, validate <code>nums[left]==target</code> before computing right.</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(log n)</span>
+        <span class="cx-badge">Space: O(1)</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">lower bound</span>
+      <span class="ptag">upper bound</span>
+      <span class="ptag">hi=n sentinel</span>
+    </div>
+  </div>
+
+  <!-- 8. Median of Two Sorted Arrays -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c8)"></div>
+    <div class="card-head">
+      <div class="card-num">08 / Hard</div>
+      <div class="card-title">Median of Two Sorted Arrays</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c8)">Partition BS</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">Two sorted arrays of sizes m and n. Find the median of the combined array in O(log(m+n)) — no merging allowed.</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <text x="8" y="15" font-family="monospace" font-size="9" fill="#888">A:</text>
+  <rect x="22" y="5" width="27" height="18" rx="2" fill="#C0DCA8" stroke="#2D6A00" stroke-width="0.5"/><text x="35" y="18" text-anchor="middle" font-family="monospace" font-size="10" fill="#2D6A00">1</text>
+  <rect x="52" y="5" width="27" height="18" rx="2" fill="#A4CC88" stroke="#2D6A00" stroke-width="0.5"/><text x="65" y="18" text-anchor="middle" font-family="monospace" font-size="10" fill="#2D6A00">3</text>
+  <line x1="83" y1="2" x2="83" y2="25" stroke="#2D6A00" stroke-width="2.5"/>
+  <rect x="87" y="5" width="27" height="18" rx="2" fill="#C0DCA8" stroke="#2D6A00" stroke-width="0.5"/><text x="100" y="18" text-anchor="middle" font-family="monospace" font-size="10" fill="#2D6A00">5</text>
+  <rect x="117" y="5" width="27" height="18" rx="2" fill="#A4CC88" stroke="#2D6A00" stroke-width="0.5"/><text x="130" y="18" text-anchor="middle" font-family="monospace" font-size="10" fill="#2D6A00">8</text>
+  <text x="8" y="44" font-family="monospace" font-size="9" fill="#888">B:</text>
+  <rect x="22" y="34" width="27" height="18" rx="2" fill="#C0DCA8" stroke="#2D6A00" stroke-width="0.5"/><text x="35" y="47" text-anchor="middle" font-family="monospace" font-size="10" fill="#2D6A00">2</text>
+  <rect x="52" y="34" width="27" height="18" rx="2" fill="#A4CC88" stroke="#2D6A00" stroke-width="0.5"/><text x="65" y="47" text-anchor="middle" font-family="monospace" font-size="10" fill="#2D6A00">4</text>
+  <line x1="83" y1="31" x2="83" y2="54" stroke="#2D6A00" stroke-width="2.5"/>
+  <rect x="87" y="34" width="27" height="18" rx="2" fill="#C0DCA8" stroke="#2D6A00" stroke-width="0.5"/><text x="100" y="47" text-anchor="middle" font-family="monospace" font-size="10" fill="#2D6A00">6</text>
+  <rect x="117" y="34" width="27" height="18" rx="2" fill="#A4CC88" stroke="#2D6A00" stroke-width="0.5"/><text x="130" y="47" text-anchor="middle" font-family="monospace" font-size="10" fill="#2D6A00">7</text>
+  <text x="46" y="30" text-anchor="middle" font-family="monospace" font-size="8" fill="#888">maxL</text>
+  <text x="100" y="30" text-anchor="middle" font-family="monospace" font-size="8" fill="#888">minR</text>
+  <text x="160" y="16" font-family="monospace" font-size="8" fill="#2D6A00">maxL(A) ≤ minR(B)</text>
+  <text x="160" y="28" font-family="monospace" font-size="8" fill="#888">AND</text>
+  <text x="160" y="40" font-family="monospace" font-size="8" fill="#2D6A00">maxL(B) ≤ minR(A)</text>
+  <text x="160" y="54" font-family="monospace" font-size="8" fill="#888">→ valid partition!</text>
+  <text x="8" y="70" font-family="monospace" font-size="8" fill="#888">partX + partY = (m+n+1)/2</text>
+  <text x="8" y="82" font-family="monospace" font-size="8" fill="#2D6A00">+1 handles even &amp; odd lengths</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight</div>
+        <div class="insight-text">Binary search on <strong>partition point</strong> of smaller array. Set <code>partY = (x+y+1)/2 − partX</code>. Valid partition: <code>maxLeftX≤minRightY</code> AND <code>maxLeftY≤minRightX</code>.</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="kw">int</span> partX = (lo+hi)/<span class="nm">2</span>;
+<span class="kw">int</span> partY = (x+y+<span class="nm">1</span>)/<span class="nm">2</span> <span class="op">-</span> partX;
+<span class="cm">// edge guards:</span>
+maxLX = partX==<span class="nm">0</span>? INT_MIN : A[partX<span class="op">-</span><span class="nm">1</span>];
+minRX = partX==x  ? INT_MAX : A[partX];
+<span class="cm">// valid → compute median</span>
+<span class="cm">// maxLX&gt;minRY → hi=partX-1</span>
+<span class="cm">// else        → lo=partX+1</span></pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text">Always binary search on the <strong>smaller array</strong>. The <code>+1</code> in <code>(x+y+1)/2</code> correctly handles both even and odd combined lengths. Use <code>INT_MIN/MAX</code> for empty partition guards.</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(log min(m,n))</span>
+        <span class="cx-badge">Space: O(1)</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">partition search</span>
+      <span class="ptag">even+odd trick</span>
+      <span class="ptag">smaller array</span>
+    </div>
+  </div>
+
+  <!-- 9. K Closest Elements -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c9)"></div>
+    <div class="card-head">
+      <div class="card-num">09 / Array</div>
+      <div class="card-title">Find K Closest Elements</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c9)">Sliding Window BS</span>
+      <span class="ap-chip" style="background:#444">PQ O(nlogk)</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">Sorted array, integers k and x. Return the k numbers closest to x, sorted. Ties go to the smaller element.</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <line x1="14" y1="52" x2="266" y2="52" stroke="#AAA" stroke-width="2" stroke-linecap="round"/>
+  <line x1="14" y1="47" x2="14" y2="57" stroke="#AAA" stroke-width="1.5"/><text x="14" y="68" text-anchor="middle" font-family="monospace" font-size="9" fill="#888">1</text>
+  <line x1="40" y1="47" x2="40" y2="57" stroke="#AAA" stroke-width="1.5"/><text x="40" y="68" text-anchor="middle" font-family="monospace" font-size="9" fill="#888">2</text>
+  <line x1="66" y1="47" x2="66" y2="57" stroke="#0066CC" stroke-width="2"/><text x="66" y="68" text-anchor="middle" font-family="monospace" font-size="9" fill="#0066CC">3</text>
+  <line x1="92" y1="47" x2="92" y2="57" stroke="#0066CC" stroke-width="2"/><text x="92" y="68" text-anchor="middle" font-family="monospace" font-size="9" fill="#0066CC">4</text>
+  <line x1="118" y1="47" x2="118" y2="57" stroke="#0066CC" stroke-width="2"/><text x="118" y="68" text-anchor="middle" font-family="monospace" font-size="9" fill="#0066CC">5</text>
+  <line x1="144" y1="47" x2="144" y2="57" stroke="#0066CC" stroke-width="2"/><text x="144" y="68" text-anchor="middle" font-family="monospace" font-size="9" fill="#0066CC">6</text>
+  <line x1="170" y1="47" x2="170" y2="57" stroke="#AAA" stroke-width="1.5"/><text x="170" y="68" text-anchor="middle" font-family="monospace" font-size="9" fill="#888">7</text>
+  <line x1="196" y1="47" x2="196" y2="57" stroke="#AAA" stroke-width="1.5"/><text x="196" y="68" text-anchor="middle" font-family="monospace" font-size="9" fill="#888">8</text>
+  <circle cx="118" cy="52" r="8" fill="#FF3B00" opacity="0.9"/>
+  <text x="118" y="36" text-anchor="middle" font-family="monospace" font-size="9" fill="#FF3B00">x=5</text>
+  <rect x="64" y="43" width="102" height="18" rx="4" fill="#0066CC" opacity="0.12" stroke="#0066CC" stroke-width="1"/>
+  <line x1="64" y1="80" x2="166" y2="80" stroke="#0066CC" stroke-width="1.5"/>
+  <line x1="64" y1="74" x2="64" y2="86" stroke="#0066CC" stroke-width="1.5"/>
+  <line x1="166" y1="74" x2="166" y2="86" stroke="#0066CC" stroke-width="1.5"/>
+  <text x="88" y="94" font-family="monospace" font-size="9" fill="#0066CC">k=4 window</text>
+  <text x="8" y="16" font-family="monospace" font-size="8" fill="#888">x-arr[lo] &gt; arr[lo+k]-x → slide right</text>
+  <text x="8" y="28" font-family="monospace" font-size="8" fill="#0066CC">NO abs() — signed comparison only!</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight (Best O(log n))</div>
+        <div class="insight-text">Find left boundary of a window of size k. Predicate: <code>x−arr[mid] &gt; arr[mid+k]−x</code> (raw, not abs!) means window should slide right. Search space: [0, n−k].</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="kw">int</span> lo=<span class="nm">0</span>, hi=arr.length<span class="op">-</span>k;
+<span class="kw">while</span>(lo &lt; hi) {
+  <span class="kw">int</span> mid = (lo<span class="op">+</span>hi)/<span class="nm">2</span>;
+  <span class="cm">// do NOT use abs() here!</span>
+  <span class="kw">if</span>(x<span class="op">-</span>arr[mid] &gt; arr[mid<span class="op">+</span>k]<span class="op">-</span>x)
+       lo = mid<span class="op">+</span><span class="nm">1</span>;
+  <span class="kw">else</span> hi = mid;
+}
+<span class="cm">// return arr[lo .. lo+k)</span></pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text">Never use <code>abs()</code> in the comparison — it fails when arr has duplicates like <code>[1,1,2,2,2,2,2,3,3], x=3</code>. Raw signed comparison preserves directional information.</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(log(n−k) + k)</span>
+        <span class="cx-badge">Space: O(k)</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">window left boundary</span>
+      <span class="ptag">no abs trap</span>
+      <span class="ptag">hi=n-k</span>
+    </div>
+  </div>
+
+  <!-- 10. Search a 2D Matrix -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c10)"></div>
+    <div class="card-head">
+      <div class="card-num">10 / Matrix</div>
+      <div class="card-title">Search a 2D Matrix</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c10)">Virtual 1D BS</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">m×n matrix where each row is sorted and the first element of each row is greater than the last of the previous. Search for a target.</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <rect x="8" y="8" width="23" height="17" rx="2" fill="#EAD8FF" stroke="#6B3FA0" stroke-width="0.5"/><text x="19" y="21" text-anchor="middle" font-family="monospace" font-size="9" fill="#4A1980">1</text>
+  <rect x="34" y="8" width="23" height="17" rx="2" fill="#DEC8FF" stroke="#6B3FA0" stroke-width="0.5"/><text x="45" y="21" text-anchor="middle" font-family="monospace" font-size="9" fill="#4A1980">3</text>
+  <rect x="60" y="8" width="23" height="17" rx="2" fill="#D2B8FF" stroke="#6B3FA0" stroke-width="0.5"/><text x="71" y="21" text-anchor="middle" font-family="monospace" font-size="9" fill="#fff">5</text>
+  <rect x="86" y="8" width="23" height="17" rx="2" fill="#C4A4FF" stroke="#6B3FA0" stroke-width="0.5"/><text x="97" y="21" text-anchor="middle" font-family="monospace" font-size="9" fill="#fff">7</text>
+  <rect x="8" y="28" width="23" height="17" rx="2" fill="#A880FF" stroke="#6B3FA0" stroke-width="0.5"/><text x="19" y="41" text-anchor="middle" font-family="monospace" font-size="9" fill="#fff">10</text>
+  <rect x="34" y="28" width="23" height="17" rx="2" fill="#9060EE" stroke="#6B3FA0" stroke-width="0.5"/><text x="45" y="41" text-anchor="middle" font-family="monospace" font-size="9" fill="#fff">11</text>
+  <rect x="60" y="28" width="23" height="17" rx="2" fill="#6B3FA0" stroke="#4A1980" stroke-width="1.5"/><text x="71" y="41" text-anchor="middle" font-family="monospace" font-size="9" fill="#fff" font-weight="bold">13</text>
+  <rect x="86" y="28" width="23" height="17" rx="2" fill="#4A2080" stroke="#4A1980" stroke-width="0.5"/><text x="97" y="41" text-anchor="middle" font-family="monospace" font-size="9" fill="#fff">20</text>
+  <rect x="8" y="48" width="23" height="17" rx="2" fill="#3A1070" stroke="#3A1070" stroke-width="0.5"/><text x="19" y="61" text-anchor="middle" font-family="monospace" font-size="8" fill="#fff">23</text>
+  <rect x="34" y="48" width="23" height="17" rx="2" fill="#2A0860" stroke="#3A1070" stroke-width="0.5"/><text x="45" y="61" text-anchor="middle" font-family="monospace" font-size="8" fill="#fff">30</text>
+  <rect x="60" y="48" width="23" height="17" rx="2" fill="#1A0050" stroke="#3A1070" stroke-width="0.5"/><text x="71" y="61" text-anchor="middle" font-family="monospace" font-size="8" fill="#fff">34</text>
+  <rect x="86" y="48" width="23" height="17" rx="2" fill="#0C0040" stroke="#3A1070" stroke-width="0.5"/><text x="97" y="61" text-anchor="middle" font-family="monospace" font-size="8" fill="#fff">50</text>
+  <text x="125" y="40" font-family="monospace" font-size="20" fill="#6B3FA0">→</text>
+  <text x="152" y="22" font-family="monospace" font-size="8" fill="#888">treat as 1D array</text>
+  <rect x="152" y="28" width="17" height="15" rx="2" fill="#EAD8FF" stroke="#6B3FA0" stroke-width="0.5"/><text x="160" y="39" text-anchor="middle" font-family="monospace" font-size="8" fill="#4A1980">1</text>
+  <rect x="171" y="28" width="17" height="15" rx="2" fill="#DEC8FF" stroke="#6B3FA0" stroke-width="0.5"/><text x="179" y="39" text-anchor="middle" font-family="monospace" font-size="8" fill="#4A1980">3</text>
+  <text x="190" y="39" font-family="monospace" font-size="9" fill="#888">...</text>
+  <rect x="204" y="28" width="17" height="15" rx="2" fill="#0C0040" stroke="#6B3FA0" stroke-width="0.5"/><text x="212" y="39" text-anchor="middle" font-family="monospace" font-size="8" fill="#fff">50</text>
+  <text x="152" y="60" font-family="monospace" font-size="9" fill="#6B3FA0">row = idx / n</text>
+  <text x="152" y="74" font-family="monospace" font-size="9" fill="#6B3FA0">col = idx % n</text>
+  <text x="152" y="88" font-family="monospace" font-size="8" fill="#888">lo=0, hi=m*n</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight</div>
+        <div class="insight-text">Treat the m×n matrix as a <strong>virtual sorted 1D array</strong> of length m*n. Map index: <code>row = idx/n</code>, <code>col = idx%n</code>. Binary search over [0 … m*n−1].</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="kw">int</span> lo=<span class="nm">0</span>, hi=m<span class="op">*</span>n;
+<span class="kw">while</span>(lo<span class="op">+</span><span class="nm">1</span>&lt;hi) {
+  <span class="kw">int</span> mid = lo + (hi<span class="op">-</span>lo)/<span class="nm">2</span>;
+  <span class="cm">// map back: row=mid/n col=mid%n</span>
+  <span class="kw">if</span>(matrix[mid/n][mid%n]&lt;=target)
+       lo=mid;
+  <span class="kw">else</span> hi=mid;
+}
+<span class="kw">return</span> matrix[lo/n][lo%n]==target;</pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text">Guard against empty matrix: check <code>m==0 || n==0</code> first. The predicate is <strong>TTTTT'T'FFFF</strong> — we seek last true → check <code>lo</code> at end.</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(log(m·n))</span>
+        <span class="cx-badge">Space: O(1)</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">index mapping</span>
+      <span class="ptag">virtual array</span>
+      <span class="ptag">row/col formula</span>
+    </div>
+  </div>
+
+  <!-- 11. Kth Missing Positive -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c11)"></div>
+    <div class="card-head">
+      <div class="card-num">11 / Math</div>
+      <div class="card-title">Kth Missing Positive Number</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c11)">Count Formula BS</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">Strictly increasing array of positive integers with gaps. Find the kth positive integer that is missing from it.</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <circle cx="18" cy="44" r="9" fill="none" stroke="#B5451B" stroke-width="1.5" stroke-dasharray="2,1.5"/><text x="18" y="48" text-anchor="middle" font-family="monospace" font-size="9" fill="#B5451B">1</text>
+  <circle cx="40" cy="44" r="9" fill="#F5C8A8" stroke="#B5451B" stroke-width="1.5"/><text x="40" y="48" text-anchor="middle" font-family="monospace" font-size="9" fill="#7A2A00">2</text>
+  <circle cx="62" cy="44" r="9" fill="#F5C8A8" stroke="#B5451B" stroke-width="1.5"/><text x="62" y="48" text-anchor="middle" font-family="monospace" font-size="9" fill="#7A2A00">3</text>
+  <circle cx="84" cy="44" r="9" fill="#F5C8A8" stroke="#B5451B" stroke-width="1.5"/><text x="84" y="48" text-anchor="middle" font-family="monospace" font-size="9" fill="#7A2A00">4</text>
+  <circle cx="106" cy="44" r="9" fill="none" stroke="#B5451B" stroke-width="1.5" stroke-dasharray="2,1.5"/><text x="106" y="48" text-anchor="middle" font-family="monospace" font-size="9" fill="#B5451B">5</text>
+  <circle cx="128" cy="44" r="9" fill="none" stroke="#B5451B" stroke-width="1.5" stroke-dasharray="2,1.5"/><text x="128" y="48" text-anchor="middle" font-family="monospace" font-size="9" fill="#B5451B">6</text>
+  <circle cx="150" cy="44" r="9" fill="#F5C8A8" stroke="#B5451B" stroke-width="1.5"/><text x="150" y="48" text-anchor="middle" font-family="monospace" font-size="9" fill="#7A2A00">7</text>
+  <circle cx="172" cy="44" r="9" fill="none" stroke="#B5451B" stroke-width="1.5" stroke-dasharray="2,1.5"/><text x="172" y="48" text-anchor="middle" font-family="monospace" font-size="9" fill="#B5451B">8</text>
+  <circle cx="194" cy="44" r="11" fill="#B5451B" stroke="#7A2A00" stroke-width="2"/><text x="194" y="48" text-anchor="middle" font-family="monospace" font-size="10" fill="#fff" font-weight="bold">9</text>
+  <text x="185" y="22" font-family="monospace" font-size="8" fill="#B5451B">k=5 ★</text>
+  <circle cx="216" cy="44" r="9" fill="none" stroke="#B5451B" stroke-width="1.5" stroke-dasharray="2,1.5"/><text x="216" y="48" text-anchor="middle" font-family="monospace" font-size="9" fill="#B5451B">10</text>
+  <circle cx="238" cy="44" r="9" fill="#F5C8A8" stroke="#B5451B" stroke-width="1.5"/><text x="238" y="48" text-anchor="middle" font-family="monospace" font-size="9" fill="#7A2A00">11</text>
+  <text x="8" y="16" font-family="monospace" font-size="8" fill="#B5451B">● present  ○ missing</text>
+  <text x="8" y="72" font-family="monospace" font-size="8" fill="#888">arr=[2,3,4,7,11]  missing before arr[i] = arr[i]-i-1</text>
+  <text x="8" y="86" font-family="monospace" font-size="8" fill="#B5451B">answer = left + k</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight</div>
+        <div class="insight-text">At index <code>pivot</code>, the number of missing positives before <code>arr[pivot]</code> is <code>arr[pivot] − pivot − 1</code>. Binary search for the rightmost pivot where this count &lt; k. Answer: <code>left + k</code>.</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="kw">int</span> left=<span class="nm">0</span>, right=arr.length<span class="op">-</span><span class="nm">1</span>;
+<span class="kw">while</span>(left&lt;=right) {
+  <span class="kw">int</span> p = left+(right<span class="op">-</span>left)/<span class="nm">2</span>;
+  <span class="cm">// missing before arr[p]:</span>
+  <span class="kw">if</span>(arr[p]<span class="op">-</span>p<span class="op">-</span><span class="nm">1</span> &lt; k) left=p<span class="op">+</span><span class="nm">1</span>;
+  <span class="kw">else</span>                right=p<span class="op">-</span><span class="nm">1</span>;
+}
+<span class="kw">return</span> left + k; <span class="cm">// elegant formula</span></pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text">The return formula <code>left + k</code> is derived: missing before arr[right] is <code>arr[right]−right−1</code>, so answer = <code>arr[right] + k − (arr[right]−right−1) = k + left</code>. Don't try to re-derive from scratch.</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(log n)</span>
+        <span class="cx-badge">Space: O(1)</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">count formula</span>
+      <span class="ptag">left+k trick</span>
+      <span class="ptag">missing count</span>
+    </div>
+  </div>
+
+  <!-- 12. Kth Smallest (Quickselect) -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c12)"></div>
+    <div class="card-head">
+      <div class="card-num">12 / Select</div>
+      <div class="card-title">Kth Smallest Element (Unsorted)</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c12)">Quickselect</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">Unsorted array of integers. Return the kth smallest (0-indexed) in O(n) average time — no full sort allowed.</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <text x="10" y="15" font-family="monospace" font-size="8" fill="#888">input: [5,3,8,2,0]  k=2  →  randomize first!</text>
+  <rect x="10" y="22" width="38" height="28" rx="3" fill="#A8DCC8" stroke="#1A6B5C" stroke-width="1.2"/><text x="29" y="40" text-anchor="middle" font-family="monospace" font-size="13" fill="#1A6B5C">0</text>
+  <rect x="51" y="22" width="38" height="28" rx="3" fill="#A8DCC8" stroke="#1A6B5C" stroke-width="1.2"/><text x="70" y="40" text-anchor="middle" font-family="monospace" font-size="13" fill="#1A6B5C">2</text>
+  <rect x="92" y="18" width="38" height="36" rx="3" fill="#1A6B5C" stroke="#0D4038" stroke-width="2"/><text x="111" y="40" text-anchor="middle" font-family="monospace" font-size="14" fill="#fff" font-weight="bold">3</text>
+  <text x="97" y="14" font-family="monospace" font-size="8" fill="#1A6B5C">pivot j=2</text>
+  <rect x="133" y="22" width="38" height="28" rx="3" fill="#E0F0E8" stroke="#1A6B5C" stroke-width="0.5"/><text x="152" y="40" text-anchor="middle" font-family="monospace" font-size="13" fill="#888">5</text>
+  <rect x="174" y="22" width="38" height="28" rx="3" fill="#E0F0E8" stroke="#1A6B5C" stroke-width="0.5"/><text x="193" y="40" text-anchor="middle" font-family="monospace" font-size="13" fill="#888">8</text>
+  <text x="14" y="62" font-family="monospace" font-size="9" fill="#1A6B5C">≤ pivot</text>
+  <text x="136" y="62" font-family="monospace" font-size="9" fill="#888">&gt; pivot</text>
+  <line x1="70" y1="62" x2="70" y2="74" stroke="#1A6B5C" stroke-width="1.5"/>
+  <text x="59" y="86" font-family="monospace" font-size="9" fill="#1A6B5C">k=2 ✓</text>
+  <text x="230" y="36" font-family="monospace" font-size="9" fill="#1A6B5C">j==k?</text>
+  <text x="225" y="50" font-family="monospace" font-size="8" fill="#888">→ done!</text>
+  <text x="225" y="64" font-family="monospace" font-size="8" fill="#888">else recurse</text>
+  <text x="225" y="80" font-family="monospace" font-size="9" fill="#1A6B5C">O(n) avg</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight</div>
+        <div class="insight-text">Quickselect partitions around a pivot and recurses only into the half containing index k — O(n) average. <strong>Randomize first</strong> to avoid O(n²) worst case on sorted input.</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="cm">// partition: nums[hi] is pivot</span>
+<span class="kw">while</span>(lo&lt;hi) {
+  <span class="kw">int</span> j = partition(nums, lo, hi);
+  <span class="kw">if</span>(j&lt;k)       lo=j<span class="op">+</span><span class="nm">1</span>;
+  <span class="kw">else if</span>(j&gt;k)  hi=j<span class="op">-</span><span class="nm">1</span>;
+  <span class="kw">else</span>           <span class="kw">break</span>;
+}
+<span class="kw">return</span> nums[k];</pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text">Always randomize (Fisher-Yates shuffle) before partitioning. Without randomization, sorted inputs cause O(n²). Partition uses <code>nums[hi]</code> as pivot and swaps elements ≤ pivot to the left.</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(n) avg</span>
+        <span class="cx-badge">O(n²) worst</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">quickselect</span>
+      <span class="ptag">randomize first</span>
+      <span class="ptag">partition</span>
+    </div>
+  </div>
+
+  <!-- 13. Coincidence Search -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c13)"></div>
+    <div class="card-head">
+      <div class="card-num">13 / Simulation</div>
+      <div class="card-title">Coincidence Search</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c13)">Recursive Sim</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">Unsorted array of unique integers. Count how many elements would still be found correctly if binary search were applied to it as-is.</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <rect x="14" y="28" width="38" height="28" rx="3" fill="#F5EAC0" stroke="#C8A000" stroke-width="0.5"/><text x="33" y="46" text-anchor="middle" font-family="monospace" font-size="14" fill="#7A5C00">1</text>
+  <circle cx="33" cy="18" r="9" fill="#7A5C00"/><text x="33" y="22" text-anchor="middle" font-family="monospace" font-size="10" fill="#fff">✓</text>
+  <rect x="59" y="28" width="38" height="28" rx="3" fill="#EEE" stroke="#CCC" stroke-width="0.5"/><text x="78" y="46" text-anchor="middle" font-family="monospace" font-size="14" fill="#BBB">5</text>
+  <circle cx="78" cy="18" r="9" fill="#DDD"/><text x="78" y="22" text-anchor="middle" font-family="monospace" font-size="10" fill="#999">✗</text>
+  <rect x="104" y="23" width="38" height="38" rx="3" fill="#7A5C00" stroke="#5A3E00" stroke-width="2"/><text x="123" y="46" text-anchor="middle" font-family="monospace" font-size="14" fill="#fff" font-weight="bold">3</text>
+  <text x="112" y="15" font-family="monospace" font-size="8" fill="#7A5C00">mid first</text>
+  <circle cx="123" cy="8" r="8" fill="#7A5C00"/><text x="123" y="12" text-anchor="middle" font-family="monospace" font-size="9" fill="#fff">✓</text>
+  <rect x="149" y="28" width="38" height="28" rx="3" fill="#EEE" stroke="#CCC" stroke-width="0.5"/><text x="168" y="46" text-anchor="middle" font-family="monospace" font-size="14" fill="#BBB">2</text>
+  <circle cx="168" cy="18" r="9" fill="#DDD"/><text x="168" y="22" text-anchor="middle" font-family="monospace" font-size="10" fill="#999">✗</text>
+  <rect x="194" y="28" width="38" height="28" rx="3" fill="#F5EAC0" stroke="#C8A000" stroke-width="0.5"/><text x="213" y="46" text-anchor="middle" font-family="monospace" font-size="14" fill="#7A5C00">9</text>
+  <circle cx="213" cy="18" r="9" fill="#7A5C00"/><text x="213" y="22" text-anchor="middle" font-family="monospace" font-size="10" fill="#fff">✓</text>
+  <text x="8" y="72" font-family="monospace" font-size="8" fill="#888">track valid range [ll..hh] for each BS position</text>
+  <text x="8" y="84" font-family="monospace" font-size="8" fill="#7A5C00">[1,5,3,2,9] → 3 findable (1, 3, 9)</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight</div>
+        <div class="insight-text">Simulate binary search structurally. Track <code>[ll, hh]</code> — the valid range for a correct element at each position. If <code>ll ≤ nums[mid] ≤ hh</code>, binary search would find it. Recurse, tightening bounds.</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="kw">def</span> <span class="fn">bsearch</span>(lo, hi, ll, hh):
+  <span class="kw">if</span> lo &lt;= hi:
+    mid = lo + hi &gt;&gt; <span class="nm">1</span>
+    <span class="kw">if</span> ll &lt;= nums[mid] &lt;= hh:
+      ans += <span class="nm">1</span>
+    bsearch(lo, mid<span class="op">-</span><span class="nm">1</span>, ll, <span class="fn">min</span>(hh,nums[mid]))
+    bsearch(mid<span class="op">+</span><span class="nm">1</span>, hi, <span class="fn">max</span>(ll,nums[mid]), hh)</pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text">When going left, the new upper bound tightens: <code>hh = min(hh, nums[mid])</code>. When going right: <code>ll = max(ll, nums[mid])</code>. Recursion depth is O(log n) — not O(n).</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(n)</span>
+        <span class="cx-badge">Space: O(log n)</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">simulate BS</span>
+      <span class="ptag">valid range</span>
+      <span class="ptag">tighten bounds</span>
+    </div>
+  </div>
+
+  <!-- 14. Peak Index in Mountain Array -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c14)"></div>
+    <div class="card-head">
+      <div class="card-num">14 / Mountain</div>
+      <div class="card-title">Peak Index in a Mountain Array</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c14)">Binary Search</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">Array guaranteed to be a "mountain": strictly increases then strictly decreases. Find the index of the peak element.</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <polygon points="10,86 75,64 140,14 205,64 262,84 262,90 10,90" fill="#00537A" opacity="0.09"/>
+  <polyline points="10,86 75,64 140,14 205,64 262,84" fill="none" stroke="#00537A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="140" cy="14" r="12" fill="#00537A" opacity="0.18"/>
+  <circle cx="140" cy="14" r="6" fill="#00537A"/>
+  <text x="140" y="7" text-anchor="middle" font-family="monospace" font-size="8" fill="#00537A">peak idx</text>
+  <line x1="95" y1="46" x2="95" y2="86" stroke="#00537A" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="83" y="86" font-family="monospace" font-size="8" fill="#888">mid</text>
+  <text x="11" y="18" font-family="monospace" font-size="8" fill="#00537A">arr[mid] &gt; arr[mid+1] →</text>
+  <text x="11" y="30" font-family="monospace" font-size="8" fill="#555">on descent side → hi=mid</text>
+  <text x="11" y="44" font-family="monospace" font-size="8" fill="#555">else → still ascending → lo=mid</text>
+  <text x="140" y="80" font-family="monospace" font-size="8" fill="#888">guaranteed mountain</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight</div>
+        <div class="insight-text">Identical to #3 (Find Peak Element) but guaranteed mountain shape. Predicate <code>arr[mid] ≥ arr[mid+1]</code> is <strong>TTTT'T'FFFF</strong>. Seek first true → <code>hi = mid</code>, return <code>hi</code>.</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="kw">int</span> lo=<span class="op">-</span><span class="nm">1</span>, hi=arr.length<span class="op">-</span><span class="nm">1</span>;
+<span class="kw">while</span>(lo<span class="op">+</span><span class="nm">1</span>&lt;hi) {
+  <span class="kw">int</span> mid = lo + (hi<span class="op">-</span>lo)/<span class="nm">2</span>;
+  <span class="kw">if</span>(arr[mid]&gt;=arr[mid<span class="op">+</span><span class="nm">1</span>])
+       hi=mid; <span class="cm">// on descent side</span>
+  <span class="kw">else</span> lo=mid; <span class="cm">// still ascending</span>
+}
+<span class="kw">return</span> hi; <span class="cm">// peak index</span></pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text">Mountain is guaranteed, so no boundary checks needed for <code>mid+1</code>. The guarantee means the peak is always strictly interior — <code>lo=-1, hi=length-1</code> safely excludes endpoints.</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(log n)</span>
+        <span class="cx-badge">Space: O(1)</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">slope direction</span>
+      <span class="ptag">guaranteed peak</span>
+      <span class="ptag">return hi</span>
+    </div>
+  </div>
+
+  <!-- 15. Unknown Size Array -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c15)"></div>
+    <div class="card-head">
+      <div class="card-num">15 / Unbounded</div>
+      <div class="card-title">Search in Sorted Array of Unknown Size</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c15)">Unbounded BS</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">Sorted array accessible only via an ArrayReader API (no .length). Out-of-bounds reads return INT_MAX. Find the target index.</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <rect x="8" y="30" width="30" height="24" rx="2" fill="#ECD8FF" stroke="#5C1A6B" stroke-width="0.5"/><text x="23" y="46" text-anchor="middle" font-family="monospace" font-size="11" fill="#5C1A6B">-1</text>
+  <rect x="41" y="30" width="30" height="24" rx="2" fill="#DDB8FF" stroke="#5C1A6B" stroke-width="0.5"/><text x="56" y="46" text-anchor="middle" font-family="monospace" font-size="11" fill="#5C1A6B">0</text>
+  <rect x="74" y="30" width="30" height="24" rx="2" fill="#CE98FF" stroke="#5C1A6B" stroke-width="0.5"/><text x="89" y="46" text-anchor="middle" font-family="monospace" font-size="11" fill="#5C1A6B">3</text>
+  <rect x="107" y="26" width="30" height="32" rx="2" fill="#5C1A6B" stroke="#3A0848" stroke-width="2"/><text x="122" y="46" text-anchor="middle" font-family="monospace" font-size="12" fill="#fff" font-weight="bold">9</text>
+  <circle cx="122" cy="42" r="15" fill="none" stroke="#FF6B35" stroke-width="1.5"/>
+  <text x="120" y="18" font-family="monospace" font-size="8" fill="#FF6B35">target ✓</text>
+  <rect x="140" y="30" width="30" height="24" rx="2" fill="#A870DD" stroke="#5C1A6B" stroke-width="0.5"/><text x="155" y="46" text-anchor="middle" font-family="monospace" font-size="11" fill="#fff">12</text>
+  <rect x="173" y="30" width="30" height="24" rx="2" fill="#C8A8E8" opacity="0.6" stroke="#9070B8" stroke-width="0.5"/><text x="188" y="46" text-anchor="middle" font-family="monospace" font-size="11" fill="#9070B8">?</text>
+  <rect x="206" y="30" width="30" height="24" rx="2" fill="#C8A8E8" opacity="0.35" stroke="#9070B8" stroke-width="0.5"/><text x="221" y="46" text-anchor="middle" font-family="monospace" font-size="11" fill="#B8A0C8">?</text>
+  <rect x="239" y="22" width="36" height="40" rx="3" fill="#5C1A6B"/>
+  <text x="257" y="39" text-anchor="middle" font-family="monospace" font-size="7" fill="#fff">INT</text>
+  <text x="257" y="50" text-anchor="middle" font-family="monospace" font-size="7" fill="#fff">MAX</text>
+  <text x="8" y="20" font-family="monospace" font-size="8" fill="#888">length unknown → hi = Integer.MAX_VALUE</text>
+  <text x="8" y="72" font-family="monospace" font-size="8" fill="#5C1A6B">ok(mid): not OOB AND val ≤ target</text>
+  <text x="8" y="84" font-family="monospace" font-size="8" fill="#888">check OOB first (short-circuit!)</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight</div>
+        <div class="insight-text">Use <code>hi = Integer.MAX_VALUE</code> as sentinel. Predicate <code>ok(mid)</code>: reader.get(mid) is not <code>2147483647</code> (OOB sentinel) AND <code>≤ target</code>. Pattern: <strong>TTTTT'T'FFFF</strong>.</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="kw">int</span> lo=<span class="nm">0</span>, hi=Integer.MAX_VALUE;
+<span class="kw">while</span>(lo<span class="op">+</span><span class="nm">1</span>&lt;hi) {
+  <span class="kw">int</span> mid = lo + (hi<span class="op">-</span>lo)/<span class="nm">2</span>;
+  <span class="kw">if</span>(ok(reader, mid, target))
+       lo=mid;
+  <span class="kw">else</span> hi=mid;
+}
+<span class="cm">// ok: !OOB && val&lt;=target</span>
+<span class="kw">return</span> reader.get(lo)==target? lo:<span class="op">-</span><span class="nm">1</span>;</pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text">Must check OOB sentinel (<code>2147483647</code>) in predicate before value comparison — short-circuit order matters. With <code>hi=MAX_VALUE</code>, use <code>lo+(hi-lo)/2</code> to avoid overflow in <code>mid</code>.</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(log T)</span>
+        <span class="cx-badge">Space: O(1)</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">MAX_VALUE hi</span>
+      <span class="ptag">OOB guard</span>
+      <span class="ptag">unbounded</span>
+    </div>
+  </div>
+
+  <!-- 16. Smallest Divisor -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c16)"></div>
+    <div class="card-head">
+      <div class="card-num">16 / Feasibility</div>
+      <div class="card-title">Find Smallest Divisor Given Threshold</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c16)">BS on Answer</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">Divide each element by a positive integer divisor (ceiling), sum the results. Find the smallest divisor where the sum ≤ threshold.</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <text x="8" y="14" font-family="monospace" font-size="8" fill="#888">nums=[1,2,5,9]  threshold=6</text>
+  <rect x="12" y="75" width="20" height="8" rx="1" fill="#1B4332" opacity="0.3" stroke="#1B4332" stroke-width="0.5"/>
+  <rect x="35" y="67" width="20" height="16" rx="1" fill="#1B4332" opacity="0.4" stroke="#1B4332" stroke-width="0.5"/>
+  <rect x="58" y="45" width="20" height="38" rx="1" fill="#1B4332" opacity="0.6" stroke="#1B4332" stroke-width="0.5"/>
+  <rect x="81" y="21" width="20" height="62" rx="1" fill="#1B4332" opacity="0.8" stroke="#1B4332" stroke-width="0.5"/>
+  <text x="18" y="92" text-anchor="middle" font-family="monospace" font-size="8" fill="#888">1</text>
+  <text x="45" y="92" text-anchor="middle" font-family="monospace" font-size="8" fill="#888">2</text>
+  <text x="68" y="92" text-anchor="middle" font-family="monospace" font-size="8" fill="#888">5</text>
+  <text x="91" y="92" text-anchor="middle" font-family="monospace" font-size="8" fill="#888">9</text>
+  <text x="18" y="70" text-anchor="middle" font-family="monospace" font-size="7" fill="#888">÷1=17</text>
+  <text x="115" y="50" font-family="monospace" font-size="20" fill="#1B4332">→</text>
+  <rect x="145" y="75" width="20" height="8" rx="1" fill="#1B4332" stroke="#1B4332" stroke-width="0.5"/>
+  <rect x="168" y="75" width="20" height="8" rx="1" fill="#1B4332" stroke="#1B4332" stroke-width="0.5"/>
+  <rect x="191" y="75" width="20" height="8" rx="1" fill="#1B4332" stroke="#1B4332" stroke-width="0.5"/>
+  <rect x="214" y="67" width="20" height="16" rx="1" fill="#1B4332" stroke="#1B4332" stroke-width="0.5"/>
+  <line x1="140" y1="46" x2="260" y2="46" stroke="#FF3B00" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="194" y="42" font-family="monospace" font-size="8" fill="#FF3B00">threshold</text>
+  <text x="145" y="92" font-family="monospace" font-size="8" fill="#1B4332">÷5 = 5 ✓</text>
+  <text x="8" y="64" font-family="monospace" font-size="7.5" fill="#1B4332">ceil=(n+div-1)/div  avoid float!</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight</div>
+        <div class="insight-text">Binary search on divisor in [1 … max(nums)]. Predicate: <code>⌈nums[i]/div⌉ sum ≤ threshold</code>. Larger divisor → smaller sum → monotonic. Find smallest divisor where ok is true.</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="kw">int</span> lo=<span class="nm">0</span>, hi=nums[n<span class="op">-</span><span class="nm">1</span>]; <span class="cm">// or 1e6</span>
+<span class="kw">while</span>(lo<span class="op">+</span><span class="nm">1</span>&lt;hi) {
+  <span class="kw">int</span> mid = lo + (hi<span class="op">-</span>lo)/<span class="nm">2</span>;
+  <span class="kw">if</span>(ok(nums, mid, threshold))
+       hi=mid; <span class="cm">// seek smaller</span>
+  <span class="kw">else</span> lo=mid;
+}
+<span class="cm">// ceil: (n+div-1)/div</span></pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text">Ceiling division trick: <code>(n + div - 1) / div</code> avoids floating point. <code>hi = nums[last]</code> works since max divisor needed ≤ max element. Don't use <code>Math.ceil</code> with int division.</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(n log M)</span>
+        <span class="cx-badge">Space: O(1)</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">minimum valid</span>
+      <span class="ptag">ceiling division</span>
+      <span class="ptag">FFTT boundary</span>
+    </div>
+  </div>
+
+  <!-- 17. Koko Eating Bananas -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c17)"></div>
+    <div class="card-head">
+      <div class="card-num">17 / Feasibility</div>
+      <div class="card-title">Koko Eating Bananas</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c17)">BS on Speed</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">N piles of bananas, H hours before guards return. Koko eats k bananas/hour (one pile per hour). Find the minimum k to finish in time.</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <rect x="18" y="68" width="28" height="14" rx="2" fill="#F5A888" stroke="#7A1A1A" stroke-width="1"/>
+  <text x="32" y="63" text-anchor="middle" font-family="monospace" font-size="9" fill="#7A1A1A">3</text>
+  <rect x="60" y="50" width="28" height="32" rx="2" fill="#F08055" stroke="#7A1A1A" stroke-width="1"/>
+  <text x="74" y="45" text-anchor="middle" font-family="monospace" font-size="9" fill="#7A1A1A">6</text>
+  <rect x="102" y="44" width="28" height="38" rx="2" fill="#E05028" stroke="#7A1A1A" stroke-width="1"/>
+  <text x="116" y="39" text-anchor="middle" font-family="monospace" font-size="9" fill="#7A1A1A">7</text>
+  <rect x="144" y="22" width="28" height="60" rx="2" fill="#7A1A1A" stroke="#5A0A0A" stroke-width="1"/>
+  <text x="158" y="17" text-anchor="middle" font-family="monospace" font-size="9" fill="#7A1A1A">11</text>
+  <line x1="10" y1="64" x2="185" y2="64" stroke="#0066CC" stroke-width="2.5" stroke-dasharray="5,3"/>
+  <text x="10" y="58" font-family="monospace" font-size="8" fill="#0066CC">speed k=4/hr</text>
+  <line x1="184" y1="10" x2="184" y2="90" stroke="#DDD" stroke-width="1"/>
+  <text x="192" y="22" font-family="monospace" font-size="9" fill="#888">H=8 hrs</text>
+  <text x="192" y="36" font-family="monospace" font-size="8" fill="#888">∑⌈pile/k⌉</text>
+  <text x="192" y="50" font-family="monospace" font-size="8" fill="#888">≤ H?</text>
+  <text x="192" y="66" font-family="monospace" font-size="9" fill="#7A1A1A">min k=4 ✓</text>
+  <text x="10" y="88" font-family="monospace" font-size="8" fill="#888">lo≠-1 (div/0)  ceil=(p+k-1)/k  return hi</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight</div>
+        <div class="insight-text">Binary search on eating speed k ∈ [1 … 10⁹]. Predicate: <code>∑⌈pile/k⌉ ≤ H</code>. If she can finish at speed k, she can finish at any speed &gt; k (monotonic) → find minimum valid k.</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="kw">int</span> lo=<span class="nm">0</span>, hi=(<span class="kw">int</span>)<span class="nm">1e9</span>;
+<span class="kw">while</span>(lo<span class="op">+</span><span class="nm">1</span>&lt;hi) {
+  <span class="kw">int</span> mid = lo + (hi<span class="op">-</span>lo)/<span class="nm">2</span>;
+  <span class="kw">if</span>(ok(piles, mid, H))
+       hi=mid; <span class="cm">// seek min speed</span>
+  <span class="kw">else</span> lo=mid;
+}
+<span class="kw">return</span> hi; <span class="cm">// first true</span></pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text"><code>lo</code> must not start at <code>-1</code> — division by zero when mid=0. Use <code>lo=0</code>. Use ceiling trick <code>(p+mid-1)/mid</code> to avoid float. Return <code>hi</code> (first valid speed, not <code>lo</code>).</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(n log M)</span>
+        <span class="cx-badge">Space: O(1)</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">minimum speed</span>
+      <span class="ptag">lo≠-1</span>
+      <span class="ptag">return hi</span>
+    </div>
+  </div>
+
+  <!-- 18. Ship Capacity Within D Days -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c18)"></div>
+    <div class="card-head">
+      <div class="card-num">18 / Feasibility</div>
+      <div class="card-title">Capacity to Ship Within D Days</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c18)">BS on Capacity</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">Packages must be shipped in order within D days. Find the minimum ship capacity (max daily load) to accomplish this.</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <rect x="8" y="72" width="9" height="8" rx="1" fill="#A0C4E0" stroke="#003A6B" stroke-width="0.5"/>
+  <rect x="19" y="64" width="9" height="16" rx="1" fill="#A0C4E0" stroke="#003A6B" stroke-width="0.5"/>
+  <rect x="30" y="56" width="9" height="24" rx="1" fill="#A0C4E0" stroke="#003A6B" stroke-width="0.5"/>
+  <rect x="41" y="48" width="9" height="32" rx="1" fill="#A0C4E0" stroke="#003A6B" stroke-width="0.5"/>
+  <rect x="52" y="40" width="9" height="40" rx="1" fill="#A0C4E0" stroke="#003A6B" stroke-width="0.5"/>
+  <line x1="64" y1="30" x2="64" y2="82" stroke="#003A6B" stroke-width="2" stroke-dasharray="3,2"/>
+  <text x="33" y="90" text-anchor="middle" font-family="monospace" font-size="7" fill="#003A6B">day 1</text>
+  <rect x="67" y="32" width="9" height="48" rx="1" fill="#5090C4" stroke="#003A6B" stroke-width="0.5"/>
+  <rect x="78" y="24" width="9" height="56" rx="1" fill="#5090C4" stroke="#003A6B" stroke-width="0.5"/>
+  <line x1="90" y1="20" x2="90" y2="82" stroke="#003A6B" stroke-width="2" stroke-dasharray="3,2"/>
+  <text x="79" y="90" text-anchor="middle" font-family="monospace" font-size="7" fill="#003A6B">day 2</text>
+  <rect x="93" y="16" width="9" height="64" rx="1" fill="#2060A0" stroke="#003A6B" stroke-width="0.5"/>
+  <line x1="105" y1="12" x2="105" y2="82" stroke="#003A6B" stroke-width="2" stroke-dasharray="3,2"/>
+  <text x="99" y="90" text-anchor="middle" font-family="monospace" font-size="7" fill="#003A6B">d3</text>
+  <rect x="108" y="8" width="9" height="72" rx="1" fill="#003A6B" stroke="#001A3A" stroke-width="0.5"/>
+  <line x1="120" y1="5" x2="120" y2="82" stroke="#003A6B" stroke-width="2" stroke-dasharray="3,2"/>
+  <text x="114" y="90" text-anchor="middle" font-family="monospace" font-size="7" fill="#003A6B">d4</text>
+  <rect x="123" y="2" width="9" height="78" rx="1" fill="#001030" stroke="#001A3A" stroke-width="0.5"/>
+  <text x="128" y="90" text-anchor="middle" font-family="monospace" font-size="7" fill="#003A6B">d5</text>
+  <line x1="142" y1="2" x2="142" y2="88" stroke="#DDD" stroke-width="1"/>
+  <text x="150" y="22" font-family="monospace" font-size="9" fill="#003A6B">capacity=15</text>
+  <text x="150" y="36" font-family="monospace" font-size="8" fill="#888">greedy pack:</text>
+  <text x="150" y="50" font-family="monospace" font-size="8" fill="#888">curr+w &gt; cap?</text>
+  <text x="150" y="64" font-family="monospace" font-size="8" fill="#003A6B">→ new day, days++</text>
+  <text x="150" y="80" font-family="monospace" font-size="8" fill="#555">days ≤ D? → hi=mid</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight</div>
+        <div class="insight-text">Binary search on ship capacity. Predicate: greedily pack packages sequentially; if adding next package exceeds capacity, start a new day. Check if total days ≤ D. Same structure as Koko.</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="cm">// ok(capacity): greedy simulation</span>
+<span class="kw">int</span> days=<span class="nm">1</span>, curr=<span class="nm">0</span>;
+<span class="kw">for</span>(<span class="kw">int</span> w : weights) {
+  <span class="kw">if</span>(w&gt;k) <span class="kw">return false</span>; <span class="cm">// impossible</span>
+  <span class="kw">if</span>(curr+w&gt;k){ days++; curr=<span class="nm">0</span>; }
+  curr+=w;
+}
+<span class="kw">return</span> days&lt;=D;</pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text">Short-circuit: if any single <code>w &gt; capacity</code>, return false immediately. Start <code>days = 1</code> (not 0). <code>hi</code> can be set to <code>50000*500</code> (max packages × max weight) or sum of weights.</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(n log S)</span>
+        <span class="cx-badge">Space: O(1)</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">greedy check</span>
+      <span class="ptag">days=1 start</span>
+      <span class="ptag">single item guard</span>
+    </div>
+  </div>
+
+  <!-- 19. Divide Chocolate -->
+  <div class="card">
+    <div class="card-stripe" style="background:var(--c19)"></div>
+    <div class="card-head">
+      <div class="card-num">19 / Feasibility</div>
+      <div class="card-title">Divide Chocolate (Maximize Min Sweetness)</div>
+    </div>
+    <div class="approaches">
+      <span class="ap-chip" style="background:var(--c19)">BS on Answer</span>
+    </div>
+    <p class="problem-desc" style="padding:0 22px 14px; margin:0; border-bottom:1px dashed var(--border);">Cut a chocolate bar into K+1 pieces. You eat the least-sweet piece. Maximize the sweetness of your piece with optimal cuts.</p>
+    <div class="card-viz"><svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="95" fill="#F5F3EE" rx="8"/>
+  <rect x="8" y="36" width="38" height="30" rx="3" fill="#4A3500" stroke="#2A1500" stroke-width="2"/>
+  <text x="27" y="55" text-anchor="middle" font-family="monospace" font-size="11" fill="#fff" font-weight="bold">6</text>
+  <text x="27" y="76" text-anchor="middle" font-family="monospace" font-size="8" fill="#4A3500">★ min</text>
+  <line x1="49" y1="30" x2="49" y2="70" stroke="#4A3500" stroke-width="2.5"/>
+  <rect x="52" y="40" width="48" height="22" rx="3" fill="#C8A860" stroke="#8A6820" stroke-width="0.5"/>
+  <text x="76" y="55" text-anchor="middle" font-family="monospace" font-size="11" fill="#fff">9</text>
+  <line x1="103" y1="30" x2="103" y2="70" stroke="#4A3500" stroke-width="2.5"/>
+  <rect x="106" y="40" width="34" height="22" rx="3" fill="#D4B470" stroke="#8A6820" stroke-width="0.5"/>
+  <text x="123" y="55" text-anchor="middle" font-family="monospace" font-size="11" fill="#fff">6</text>
+  <line x1="143" y1="30" x2="143" y2="70" stroke="#4A3500" stroke-width="2.5"/>
+  <rect x="146" y="40" width="38" height="22" rx="3" fill="#E0C080" stroke="#8A6820" stroke-width="0.5"/>
+  <text x="165" y="55" text-anchor="middle" font-family="monospace" font-size="11" fill="#7A5500">7</text>
+  <line x1="187" y1="30" x2="187" y2="70" stroke="#4A3500" stroke-width="2.5"/>
+  <rect x="190" y="40" width="42" height="22" rx="3" fill="#ECCCA0" stroke="#8A6820" stroke-width="0.5"/>
+  <text x="211" y="55" text-anchor="middle" font-family="monospace" font-size="11" fill="#7A5500">8</text>
+  <line x1="235" y1="30" x2="235" y2="70" stroke="#4A3500" stroke-width="2.5"/>
+  <rect x="238" y="40" width="38" height="22" rx="3" fill="#F5D8B0" stroke="#8A6820" stroke-width="0.5"/>
+  <text x="257" y="55" text-anchor="middle" font-family="monospace" font-size="11" fill="#7A5500">9</text>
+  <text x="8" y="18" font-family="monospace" font-size="8" fill="#888">K=5 cuts → 6 pieces  maximize minimum piece</text>
+  <text x="8" y="30" font-family="monospace" font-size="8" fill="#4A3500">TTT'T'FFFF → lo=mid → return lo</text>
+  <text x="8" y="88" font-family="monospace" font-size="8" fill="#888">opposite of Koko: maximize min, not minimize max</text>
+</svg></div>
+    <div class="card-body">
+      <div class="insight-block">
+        <div class="insight-label">Key Insight</div>
+        <div class="insight-text"><strong>Inverse of Ship/Koko</strong>: maximize minimum piece, not minimize maximum. Predicate: can we cut K+1 pieces each with sweetness ≥ mid? Binary search <strong>TTTT'T'FFFF</strong> → return <code>lo</code>.</div>
+      </div>
+      <div class="mini-code">
+        <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <pre><span class="kw">int</span> lo=<span class="nm">1</span>, hi=(<span class="kw">int</span>)<span class="nm">1e9</span>/persons+<span class="nm">1</span>;
+<span class="kw">while</span>(hi&gt;lo<span class="op">+</span><span class="nm">1</span>) {
+  <span class="kw">int</span> mid = lo + (hi<span class="op">-</span>lo)/<span class="nm">2</span>;
+  <span class="cm">// TTT'T'FFFF → maximize</span>
+  <span class="kw">if</span>(ok(s, mid, persons)) lo=mid;
+  <span class="kw">else</span>                    hi=mid;
+}
+<span class="kw">return</span> lo; <span class="cm">// largest valid mid</span></pre>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Gotcha</div>
+        <div class="gotcha-text">Opposite direction from Koko: <code>lo = mid</code> when ok (maximize), return <code>lo</code>. In ok(): accumulate greedily; when chunk ≥ mid, count a cut. If cuts ≥ persons → true.</div>
+      </div>
+      <div class="complexity-row">
+        <span class="cx-badge">Time: O(n log S)</span>
+        <span class="cx-badge">Space: O(1)</span>
+      </div>
+    </div>
+    <div class="pattern-row">
+      <span class="ptag">maximize min</span>
+      <span class="ptag">return lo</span>
+      <span class="ptag">inverse koko</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- PAGE FOOTER -->
+<footer class="page-footer">
+  <div>Binary Search Pattern Reference — 19 Classic Problems</div>
+  <div>All solutions: <span>O(log N)</span> time · <span>O(1)</span> space (where possible) · <a href="index.html">← Pattern Guide</a></div>
+</footer>
+
+</body>
+</html>
