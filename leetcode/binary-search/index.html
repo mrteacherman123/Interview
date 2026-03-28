@@ -133,6 +133,11 @@
 
   .ft { background:var(--ink); color:rgba(255,255,255,0.3); padding:22px 48px; font-family:'IBM Plex Mono',monospace; font-size:11px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
   .ft span { color:rgba(255,255,255,0.6); }
+  .ft a { color:rgba(255,255,255,0.5); text-decoration:none; }
+  .ft a:hover { color:rgba(255,255,255,0.9); }
+
+  .nav-link { display:inline-flex; align-items:center; gap:6px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1px; color:rgba(255,255,255,0.45); text-decoration:none; padding:7px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.12); transition:background 0.15s,color 0.15s; }
+  .nav-link:hover { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.9); }
 
   @media(max-width:720px){
     .g2,.g3,.ann-wrap,.vs-row,.stats{grid-template-columns:1fr;}
@@ -153,6 +158,9 @@
     <span class="hd-pill">ok(mid) template</span>
     <span class="hd-pill">O(log N)</span>
     <span class="hd-pill">3 Pattern Types</span>
+  </div>
+  <div style="margin-top:22px;">
+    <a href="problems.html" class="nav-link">19 Problems →</a>
   </div>
 </header>
 
@@ -548,7 +556,7 @@
 
 <footer class="ft">
   <div>Binary Search on the Answer — Pattern Reference</div>
-  <div><span>Monotonic predicate</span> · <span>ok(mid)</span> · <span>O(log N)</span></div>
+  <div><span>Monotonic predicate</span> · <span>ok(mid)</span> · <span>O(log N)</span> · <a href="problems.html">19 Problems →</a></div>
 </footer>
 
 </body>
