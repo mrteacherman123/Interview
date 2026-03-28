@@ -646,8 +646,135 @@ root.right <span class="op">=</span> <span class="fn">build</span>(mid <span cla
   </div>
 
   <div class="sec">
-    <div class="eye">⑥ Checklist</div>
-    <div class="stitle"><span class="snum">6</span> Before You Code</div>
+    <div class="eye">⑥ Broader Trees</div>
+    <div class="stitle"><span class="snum">6</span> Three High-Value General Tree Patterns</div>
+    <div class="stack">
+      <div class="g2">
+        <div class="cw">
+          <div class="ctop">
+            <span class="dr"></span><span class="dy"></span><span class="dg"></span>
+            <span class="clang">max-path-sum.java</span>
+          </div>
+          <pre><span class="kw">int</span> left <span class="op">=</span> Math.max(<span class="nm">0</span>, <span class="fn">dfs</span>(node.left));
+<span class="kw">int</span> right <span class="op">=</span> Math.max(<span class="nm">0</span>, <span class="fn">dfs</span>(node.right));
+
+best <span class="op">=</span> Math.max(best, left <span class="op">+</span> right <span class="op">+</span> node.val);
+
+<span class="kw">return</span> Math.max(left, right) <span class="op">+</span> node.val;
+
+<span class="cm">// update global with split path</span>
+<span class="cm">// return one branch upward</span></pre>
+        </div>
+        <div class="vz">
+          <div class="vz-lbl">Maximum path sum: local split vs returned branch</div>
+          <svg viewBox="0 0 480 190" xmlns="http://www.w3.org/2000/svg">
+            <rect width="480" height="190" fill="#FFF"/>
+            <line x1="238" y1="34" x2="178" y2="82" stroke="#C8C3BA" stroke-width="2"/>
+            <line x1="238" y1="34" x2="298" y2="82" stroke="#C8C3BA" stroke-width="2"/>
+            <circle cx="238" cy="34" r="18" fill="#fff" stroke="#C8C3BA" stroke-width="2"/>
+            <circle cx="178" cy="82" r="18" fill="#FF3B00"/>
+            <circle cx="298" cy="82" r="18" fill="#FF3B00"/>
+            <text x="238" y="40" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#666">20</text>
+            <text x="178" y="88" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#fff">15</text>
+            <text x="298" y="88" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#fff">7</text>
+            <path d="M178 82 L238 34 L298 82" fill="none" stroke="#FF3B00" stroke-width="3"/>
+            <path d="M238 34 L178 82" fill="none" stroke="#1A1AFF" stroke-width="3" stroke-dasharray="5 4"/>
+            <rect x="38" y="128" width="182" height="26" rx="13" fill="#FFF4EF"/>
+            <rect x="250" y="128" width="182" height="26" rx="13" fill="#EEF0FF"/>
+            <text x="129" y="145" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#FF3B00">global best = left + node + right</text>
+            <text x="341" y="145" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#1A1AFF">return = max(left, right) + node</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="g2">
+        <div class="vz">
+          <div class="vz-lbl">General-tree LCA: two of three signals</div>
+          <svg viewBox="0 0 480 190" xmlns="http://www.w3.org/2000/svg">
+            <rect width="480" height="190" fill="#FFF"/>
+            <line x1="240" y1="30" x2="176" y2="82" stroke="#C8C3BA" stroke-width="2"/>
+            <line x1="240" y1="30" x2="304" y2="82" stroke="#C8C3BA" stroke-width="2"/>
+            <circle cx="240" cy="30" r="18" fill="#1A1AFF"/>
+            <circle cx="176" cy="82" r="18" fill="#fff" stroke="#C8C3BA" stroke-width="2"/>
+            <circle cx="304" cy="82" r="18" fill="#fff" stroke="#C8C3BA" stroke-width="2"/>
+            <text x="240" y="36" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#fff">3</text>
+            <text x="176" y="88" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#666">5</text>
+            <text x="304" y="88" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#666">1</text>
+            <rect x="56" y="126" width="90" height="26" rx="13" fill="#EEF9F2"/>
+            <rect x="194" y="126" width="90" height="26" rx="13" fill="#F4F1FF"/>
+            <rect x="332" y="126" width="90" height="26" rx="13" fill="#FFF4EF"/>
+            <text x="101" y="143" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#007A3D">left = 1</text>
+            <text x="239" y="143" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#8B00FF">mid = 0</text>
+            <text x="377" y="143" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#FF3B00">right = 1</text>
+            <text x="140" y="172" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#1A1AFF">if left + right + mid &gt;= 2, current node is the LCA</text>
+          </svg>
+        </div>
+        <div class="cw">
+          <div class="ctop">
+            <span class="dr"></span><span class="dy"></span><span class="dg"></span>
+            <span class="clang">lca-binary-tree.java</span>
+          </div>
+          <pre><span class="kw">int</span> left <span class="op">=</span> <span class="fn">dfs</span>(root.left) ? <span class="nm">1</span> : <span class="nm">0</span>;
+<span class="kw">int</span> right <span class="op">=</span> <span class="fn">dfs</span>(root.right) ? <span class="nm">1</span> : <span class="nm">0</span>;
+<span class="kw">int</span> mid <span class="op">=</span> (root <span class="op">==</span> p <span class="op">||</span> root <span class="op">==</span> q) ? <span class="nm">1</span> : <span class="nm">0</span>;
+
+<span class="kw">if</span> (left <span class="op">+</span> right <span class="op">+</span> mid <span class="op">&gt;=</span> <span class="nm">2</span>) ans <span class="op">=</span> root;
+
+<span class="kw">return</span> left <span class="op">+</span> right <span class="op">+</span> mid <span class="op">&gt;</span> <span class="nm">0</span>;
+
+<span class="cm">// two of three signals identify the split</span></pre>
+        </div>
+      </div>
+
+      <div class="g2">
+        <div class="cw">
+          <div class="ctop">
+            <span class="dr"></span><span class="dy"></span><span class="dg"></span>
+            <span class="clang">serialize-preorder.java</span>
+          </div>
+          <pre><span class="kw">if</span> (node <span class="op">==</span> <span class="kw">null</span>) {
+  out.append(<span class="st">"null,"</span>);
+  <span class="kw">return</span>;
+}
+
+out.append(node.val).append(<span class="st">","</span>);
+<span class="fn">ser</span>(node.left, out);
+<span class="fn">ser</span>(node.right, out);
+
+<span class="cm">// null markers preserve exact shape</span></pre>
+        </div>
+        <div class="vz">
+          <div class="vz-lbl">Serialization needs null markers</div>
+          <svg viewBox="0 0 480 190" xmlns="http://www.w3.org/2000/svg">
+            <rect width="480" height="190" fill="#FFF"/>
+            <text x="34" y="30" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#777">without nulls, different shapes can collide</text>
+            <line x1="84" y1="52" x2="56" y2="96" stroke="#C8C3BA" stroke-width="2"/>
+            <circle cx="84" cy="52" r="18" fill="#1A1AFF"/>
+            <circle cx="56" cy="96" r="18" fill="#fff" stroke="#C8C3BA" stroke-width="2"/>
+            <text x="84" y="58" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#fff">1</text>
+            <text x="56" y="102" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#666">2</text>
+            <text x="34" y="138" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#666">A: 1,2</text>
+
+            <line x1="244" y1="52" x2="272" y2="96" stroke="#C8C3BA" stroke-width="2"/>
+            <circle cx="244" cy="52" r="18" fill="#1A1AFF"/>
+            <circle cx="272" cy="96" r="18" fill="#fff" stroke="#C8C3BA" stroke-width="2"/>
+            <text x="244" y="58" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#fff">1</text>
+            <text x="272" y="102" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#666">2</text>
+            <text x="216" y="138" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#666">B: 1,2</text>
+
+            <rect x="330" y="52" width="116" height="30" rx="8" fill="#FFF4EF"/>
+            <rect x="330" y="96" width="116" height="30" rx="8" fill="#EEF9F2"/>
+            <text x="388" y="71" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#FF3B00">A: 1,2,null,null,null</text>
+            <text x="388" y="115" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#007A3D">B: 1,null,2,null,null</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="eye">⑦ Checklist</div>
+    <div class="stitle"><span class="snum">7</span> Before You Code</div>
     <div class="sum">
       <div class="sum-head">
         <div class="sum-lbl">Interview Checklist</div>
@@ -668,8 +795,8 @@ root.right <span class="op">=</span> <span class="fn">build</span>(mid <span cla
   </div>
 
   <div class="sec">
-    <div class="eye">⑦ Deck</div>
-    <div class="stitle"><span class="snum">7</span> Full Trees Revision Deck</div>
+    <div class="eye">⑧ Deck</div>
+    <div class="stitle"><span class="snum">8</span> Full Trees Revision Deck</div>
     <div class="card">
       <div class="card-head">
         <div class="card-lbl">Reference Deck</div>
