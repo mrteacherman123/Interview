@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Trees Interview Patterns</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Epilogue:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+  :root{
+    --bg:#F5F3EE;
+    --ink:#0D0D0D;
+    --muted:#888;
+    --border:#D8D4CC;
+    --panel:#FFFFFF;
+    --tag-bg:#EDEAE4;
+    --blue:#1A1AFF;
+    --red:#FF3B00;
+    --green:#007A3D;
+    --violet:#8B00FF;
+    --amber:#C8900A;
+  }
+
+  body{
+    background:linear-gradient(180deg,#F5F3EE 0%, #F0ECE4 100%);
+    color:var(--ink);
+    font-family:'Epilogue',sans-serif;
+  }
+
+  body::after{
+    content:'';
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:9999;
+    opacity:.025;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:200px;
+  }
+
+  .hd{
+    background:
+      radial-gradient(circle at 78% 18%, rgba(255,255,255,.06), transparent 28%),
+      radial-gradient(circle at 14% 88%, rgba(255,255,255,.04), transparent 24%),
+      linear-gradient(135deg, #0D0D0D 0%, #171717 100%);
+    color:#fff;
+    padding:54px 48px 46px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .hd::before{
+    content:'';
+    position:absolute;
+    right:28px;
+    bottom:24px;
+    width:180px;
+    height:180px;
+    border-radius:24px;
+    border:1px solid rgba(255,255,255,.08);
+    transform:rotate(15deg);
+  }
+
+  .hd-eye{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:rgba(255,255,255,.34);
+    margin-bottom:18px;
+    position:relative;
+    z-index:1;
+  }
+
+  .hd h1{
+    font-size:clamp(34px,5vw,66px);
+    font-weight:600;
+    line-height:1.03;
+    letter-spacing:-2px;
+    margin-bottom:16px;
+    position:relative;
+    z-index:1;
+  }
+
+  .hd h1 em{font-style:normal;opacity:.28}
+
+  .hd-copy{
+    max-width:660px;
+    font-size:14px;
+    line-height:1.68;
+    color:rgba(255,255,255,.62);
+    margin-bottom:22px;
+    position:relative;
+    z-index:1;
+  }
+
+  .hd-pills{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:22px;
+    position:relative;
+    z-index:1;
+  }
+
+  .hd-pill{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    padding:6px 14px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.14);
+    color:rgba(255,255,255,.56);
+    background:rgba(255,255,255,.03);
+  }
+
+  .nav-link{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:1px;
+    color:rgba(255,255,255,.76);
+    text-decoration:none;
+    padding:8px 14px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.04);
+    position:relative;
+    z-index:1;
+  }
+
+  .nav-link:hover{background:rgba(255,255,255,.08);color:#fff}
+
+  .pg{max-width:1040px;margin:0 auto;padding:52px 40px 80px}
+  .sec{margin-bottom:64px}
+  .eye{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:10px;
+  }
+  .stitle{
+    font-size:23px;
+    font-weight:600;
+    letter-spacing:-.5px;
+    margin-bottom:22px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .snum{
+    width:30px;
+    height:30px;
+    border-radius:7px;
+    background:var(--ink);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    flex-shrink:0;
+  }
+
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  .g2x1{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+
+  .card,.vz,.cw,.sum{
+    background:var(--panel);
+    border:1.5px solid var(--border);
+    border-radius:14px;
+    overflow:hidden;
+  }
+
+  .card-head,.sum-head{
+    padding:16px 20px 12px;
+    border-bottom:1px solid var(--border);
+  }
+
+  .card-lbl,.sum-lbl,.vz-lbl{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+
+  .card-ttl,.sum-ttl{font-size:14px;font-weight:600}
+  .card-body,.sum-body{
+    padding:16px 20px;
+    font-size:13px;
+    color:#555;
+    line-height:1.65;
+  }
+
+  .card-body code,.sum-body code{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    background:var(--tag-bg);
+    padding:1px 5px;
+    border-radius:3px;
+    color:var(--ink);
+  }
+
+  .vz-lbl{padding:13px 18px 10px;border-bottom:1px solid var(--border)}
+  .vz svg{width:100%;display:block}
+
+  .cw{
+    background:#0A0D14;
+    border-color:#1E2230;
+  }
+
+  .ctop{
+    background:#141820;
+    border-bottom:1px solid #1E2230;
+    padding:10px 16px;
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+
+  .dr,.dy,.dg{width:10px;height:10px;border-radius:50%}
+  .dr{background:#FF5F57}
+  .dy{background:#FEBC2E}
+  .dg{background:#28C840}
+  .clang{
+    margin-left:auto;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:#586173;
+  }
+  .cw pre{
+    padding:20px 22px;
+    overflow-x:auto;
+    color:#C9D1D9;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    line-height:1.82;
+  }
+  .kw{color:#FF79C6}
+  .fn{color:#50FA7B}
+  .cm{color:#6272A4;font-style:italic}
+  .nm{color:#BD93F9}
+  .op{color:#FF6B35}
+  .st{color:#F1FA8C}
+
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px;
+    padding:4px 8px;
+    border-radius:999px;
+    color:#fff;
+    font-weight:600;
+  }
+
+  .grid-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .ps{height:4px}
+  .pc-body{padding:16px 18px 14px}
+  .pc-name{font-size:14px;font-weight:600;margin-bottom:8px}
+  .pc-copy{font-size:12.5px;color:var(--muted);line-height:1.58;margin-bottom:12px}
+  .pc-footer{display:flex;gap:6px;flex-wrap:wrap}
+
+  .sum{background:#111;color:#fff}
+  .sum-head{border-bottom-color:rgba(255,255,255,.08)}
+  .sum-lbl{color:rgba(255,255,255,.38)}
+  .sum-body{color:rgba(255,255,255,.68)}
+  .sum-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .sum-item{
+    padding:12px 13px;
+    border-radius:10px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.06);
+    font-size:12.5px;
+    line-height:1.55;
+  }
+
+  .ft{
+    background:var(--ink);
+    color:rgba(255,255,255,.32);
+    padding:22px 48px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .ft a{color:rgba(255,255,255,.56);text-decoration:none}
+  .ft a:hover{color:#fff}
+
+  @media(max-width:900px){
+    .g2,.g2x1,.g3,.grid-cards,.sum-list{grid-template-columns:1fr}
+  }
+  @media(max-width:720px){
+    .hd{padding:42px 22px 36px}
+    .pg{padding:34px 20px 60px}
+    .ft{padding:18px 20px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div class="hd-eye">Algorithm Design Pattern · Reference Guide</div>
+  <h1>Trees<br/><em>Traversal, Structure, and BST Invariants</em></h1>
+  <div class="hd-copy">
+    Trees interview questions usually collapse into a small set of repeatable moves: traverse once, return structured state from children, exploit BST ordering, or stitch nodes level by level. This page is the pattern map. The full revision deck lives one click away.
+  </div>
+  <div class="hd-pills">
+    <span class="hd-pill">DFS / BFS</span>
+    <span class="hd-pill">Postorder State</span>
+    <span class="hd-pill">BST Bounds</span>
+    <span class="hd-pill">Tree Rebuild</span>
+    <span class="hd-pill">27 Problems</span>
+  </div>
+  <a href="problems.html" class="nav-link">27 Problems →</a>
+</header>
+
+<div class="pg">
+  <div class="sec">
+    <div class="eye">① Mental Model</div>
+    <div class="stitle"><span class="snum">1</span> Four Repeatable Question Types</div>
+    <div class="grid-cards">
+      <div class="card">
+        <div class="ps" style="background:var(--blue)"></div>
+        <div class="pc-body">
+          <div class="pc-name">Traversal / View</div>
+          <div class="pc-copy">Visit nodes in a specific order and aggregate by visit timing or by level boundary.</div>
+          <div class="pc-footer">
+            <span class="chip" style="background:var(--blue)">inorder</span>
+            <span class="chip" style="background:var(--blue)">level order</span>
+            <span class="chip" style="background:var(--blue)">right view</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ps" style="background:var(--red)"></div>
+        <div class="pc-body">
+          <div class="pc-name">Postorder DP</div>
+          <div class="pc-copy">Children return just enough state for the parent to decide its answer or update a global best.</div>
+          <div class="pc-footer">
+            <span class="chip" style="background:var(--red)">max path</span>
+            <span class="chip" style="background:var(--red)">largest BST</span>
+            <span class="chip" style="background:var(--red)">subtree sum</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ps" style="background:var(--green)"></div>
+        <div class="pc-body">
+          <div class="pc-name">BST Pruning</div>
+          <div class="pc-copy">Ordering rules let you skip entire subtrees and search in <code>O(h)</code> instead of <code>O(n)</code>.</div>
+          <div class="pc-footer">
+            <span class="chip" style="background:var(--green)">successor</span>
+            <span class="chip" style="background:var(--green)">trim BST</span>
+            <span class="chip" style="background:var(--green)">range sum</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="eye">② Traversal Template</div>
+    <div class="stitle"><span class="snum">2</span> The Core DFS Frame</div>
+    <div class="g2x1">
+      <div class="cw">
+        <div class="ctop">
+          <span class="dr"></span><span class="dy"></span><span class="dg"></span>
+          <span class="clang">mental-template.java</span>
+        </div>
+        <pre><span class="kw">State</span> <span class="fn">dfs</span>(TreeNode node) {
+  <span class="kw">if</span> (node <span class="op">==</span> <span class="kw">null</span>) <span class="kw">return</span> base;
+
+  State left <span class="op">=</span> <span class="fn">dfs</span>(node.left);
+  State right <span class="op">=</span> <span class="fn">dfs</span>(node.right);
+
+  <span class="cm">// 1) compute answer at this node</span>
+  <span class="cm">// 2) maybe update global result</span>
+  <span class="cm">// 3) return state parent actually needs</span>
+
+  <span class="kw">return</span> merged(left, right, node.val);
+}</pre>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-lbl">Rule</div>
+          <div class="card-ttl">Separate Local Answer vs Returned State</div>
+        </div>
+        <div class="card-body">
+          In tree DP, the value you return upward is often <em>not</em> the full answer for the subtree.
+          <br/><br/>
+          For example, maximum path sum updates the global answer with <code>left + node + right</code>, but returns only one downward branch.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="eye">③ Visual Heuristics</div>
+    <div class="stitle"><span class="snum">3</span> Read the Question, Pick the Pattern</div>
+    <div class="g2">
+      <div class="vz">
+        <div class="vz-lbl">Traversal timing</div>
+        <svg viewBox="0 0 480 190" xmlns="http://www.w3.org/2000/svg">
+          <rect width="480" height="190" fill="#FFF"/>
+          <line x1="240" y1="34" x2="168" y2="84" stroke="#C8C3BA" stroke-width="2"/>
+          <line x1="240" y1="34" x2="312" y2="84" stroke="#C8C3BA" stroke-width="2"/>
+          <circle cx="240" cy="34" r="18" fill="#1A1AFF"/>
+          <circle cx="168" cy="84" r="18" fill="#fff" stroke="#C8C3BA" stroke-width="2"/>
+          <circle cx="312" cy="84" r="18" fill="#fff" stroke="#C8C3BA" stroke-width="2"/>
+          <text x="240" y="40" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#fff">N</text>
+          <text x="168" y="90" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#666">L</text>
+          <text x="312" y="90" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#666">R</text>
+          <rect x="52" y="128" width="110" height="24" rx="12" fill="#EEF0FF"/>
+          <rect x="186" y="128" width="110" height="24" rx="12" fill="#FFF4EF"/>
+          <rect x="320" y="128" width="110" height="24" rx="12" fill="#EEF9F2"/>
+          <text x="107" y="144" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#1A1AFF">Pre: N L R</text>
+          <text x="241" y="144" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#FF3B00">In: L N R</text>
+          <text x="375" y="144" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#007A3D">Post: L R N</text>
+        </svg>
+      </div>
+      <div class="vz">
+        <div class="vz-lbl">BST bounds thinking</div>
+        <svg viewBox="0 0 480 190" xmlns="http://www.w3.org/2000/svg">
+          <rect width="480" height="190" fill="#FFF"/>
+          <text x="34" y="34" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#777">allowed interval travels down</text>
+          <rect x="34" y="50" width="140" height="26" rx="13" fill="#EEF9F2" stroke="#BEE0CB"/>
+          <text x="104" y="67" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#007A3D">(-∞, +∞)</text>
+          <line x1="240" y1="46" x2="170" y2="102" stroke="#C8C3BA" stroke-width="2"/>
+          <line x1="240" y1="46" x2="310" y2="102" stroke="#C8C3BA" stroke-width="2"/>
+          <circle cx="240" cy="46" r="18" fill="#007A3D"/>
+          <circle cx="170" cy="102" r="18" fill="#fff" stroke="#C8C3BA" stroke-width="2"/>
+          <circle cx="310" cy="102" r="18" fill="#fff" stroke="#C8C3BA" stroke-width="2"/>
+          <text x="240" y="52" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#fff">5</text>
+          <text x="170" y="108" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#666">1</text>
+          <text x="310" y="108" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#666">8</text>
+          <rect x="78" y="136" width="124" height="24" rx="12" fill="#F4F1FF"/>
+          <rect x="272" y="136" width="124" height="24" rx="12" fill="#FFF4EF"/>
+          <text x="140" y="152" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#8B00FF">left: (-∞, 5)</text>
+          <text x="334" y="152" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#FF3B00">right: (5, +∞)</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="eye">④ Pattern Library</div>
+    <div class="stitle"><span class="snum">4</span> Five Patterns That Cover Most Tree Interviews</div>
+    <div class="g3">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-lbl">Pattern</div>
+          <div class="card-ttl">Level Order + Layer Logic</div>
+        </div>
+        <div class="card-body">
+          Use a queue when the prompt says <code>per level</code>, <code>left to right</code>, <code>zigzag</code>, <code>largest per row</code>, or <code>right side view</code>.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-lbl">Pattern</div>
+          <div class="card-ttl">Postorder Return Tuple</div>
+        </div>
+        <div class="card-body">
+          Return multiple values when the parent needs more than one fact: examples include <code>min/max/size</code> for largest BST subtree.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-lbl">Pattern</div>
+          <div class="card-ttl">Global Best + Local Return</div>
+        </div>
+        <div class="card-body">
+          Classic when a full path or full subtree answer differs from the one-branch state the parent can legally use.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-lbl">Pattern</div>
+          <div class="card-ttl">Rebuild With Boundaries</div>
+        </div>
+        <div class="card-body">
+          Tree construction problems are almost always “one traversal gives root order, the other gives split position”.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-lbl">Pattern</div>
+          <div class="card-ttl">BST Candidate Walk</div>
+        </div>
+        <div class="card-body">
+          For predecessor, successor, LCA, and trim problems, ancestor candidates are updated only on one direction of turn.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-lbl">Pattern</div>
+          <div class="card-ttl">Shape Preservation</div>
+        </div>
+        <div class="card-body">
+          Serialization, same-tree, and build problems are about preserving exact structure, not only node values.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="eye">⑤ Checklist</div>
+    <div class="stitle"><span class="snum">5</span> Before You Code</div>
+    <div class="sum">
+      <div class="sum-head">
+        <div class="sum-lbl">Interview Checklist</div>
+        <div class="sum-ttl">Ask These Questions First</div>
+      </div>
+      <div class="sum-body">
+        Most tree bugs are not algorithmic. They are state-definition bugs.
+        <div class="sum-list">
+          <div class="sum-item">What exactly does my recursive call return to the parent?</div>
+          <div class="sum-item">Do I need a global answer separate from the returned value?</div>
+          <div class="sum-item">Is this really a BST shortcut problem or a general-tree problem?</div>
+          <div class="sum-item">Does equality break the invariant? BST validation usually needs strict inequality.</div>
+          <div class="sum-item">Am I counting nodes, edges, levels, or paths?</div>
+          <div class="sum-item">If I rebuild or serialize, how is the exact shape preserved?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="eye">⑥ Deck</div>
+    <div class="stitle"><span class="snum">6</span> Full Trees Revision Deck</div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-lbl">Reference Deck</div>
+        <div class="card-ttl">27 Trees Problems</div>
+      </div>
+      <div class="card-body">
+        The full deck includes one card per problem with algorithm visualizations, minimal code skeletons, gotchas, complexity badges, and search-friendly pattern tags.
+        <br/><br/>
+        <a href="problems.html" style="display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;color:#0D0D0D;text-decoration:none;padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--tag-bg);">Open problems.html →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="ft">
+  <span>trees · interview pattern map</span>
+  <a href="problems.html">problems.html</a>
+</footer>
+
+</body>
+</html>
