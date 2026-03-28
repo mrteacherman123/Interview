@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Graph Algorithm Patterns</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&amp;family=Epilogue:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+  :root{
+    --bg:#f5f3ee;
+    --bg-2:#efe9dd;
+    --ink:#0d0d0d;
+    --muted:#7a766e;
+    --border:#d8d4cc;
+    --panel:#ffffff;
+    --tag-bg:#edeae4;
+    --shadow:0 18px 40px rgba(12,12,12,.08);
+
+    --bfs:#1a1aff;
+    --dfs:#cc0050;
+    --topo:#007a3d;
+    --uf:#8b00ff;
+    --multi:#c8900a;
+    --dijk:#00707a;
+    --bip:#b5451b;
+    --warn:#ff3b00;
+  }
+
+  body{
+    background:
+      radial-gradient(circle at top right, rgba(13,13,13,.03), transparent 28%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+    color:var(--ink);
+    font-family:'Epilogue',sans-serif;
+  }
+
+  body::after{
+    content:'';
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:9999;
+    opacity:.022;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:220px;
+  }
+
+  .hd{
+    background:
+      radial-gradient(circle at 82% 18%, rgba(255,255,255,.08), transparent 28%),
+      radial-gradient(circle at 8% 92%, rgba(255,255,255,.04), transparent 26%),
+      linear-gradient(135deg, #0d0d0d 0%, #171717 100%);
+    color:#fff;
+    padding:56px 48px 44px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hd::before{
+    content:'';
+    position:absolute;
+    inset:auto 28px 26px auto;
+    width:170px;
+    height:170px;
+    border-radius:24px;
+    border:1px solid rgba(255,255,255,.08);
+    transform:rotate(18deg);
+  }
+  .hd-eye{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:rgba(255,255,255,.34);
+    margin-bottom:18px;
+    position:relative;
+    z-index:1;
+  }
+  .hd h1{
+    font-size:clamp(34px,5vw,66px);
+    font-weight:600;
+    line-height:1.03;
+    letter-spacing:-2px;
+    margin-bottom:16px;
+    position:relative;
+    z-index:1;
+  }
+  .hd h1 em{font-style:normal;opacity:.28}
+  .hd-copy{
+    max-width:620px;
+    font-size:14px;
+    line-height:1.65;
+    color:rgba(255,255,255,.62);
+    margin-bottom:22px;
+    position:relative;
+    z-index:1;
+  }
+  .hd-pills{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:22px;
+    position:relative;
+    z-index:1;
+  }
+  .hd-pill{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    padding:6px 14px;
+    border-radius:100px;
+    border:1px solid rgba(255,255,255,.14);
+    color:rgba(255,255,255,.55);
+    background:rgba(255,255,255,.03);
+  }
+  .nav-link{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:1px;
+    color:rgba(255,255,255,.72);
+    text-decoration:none;
+    padding:8px 14px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.04);
+    position:relative;
+    z-index:1;
+  }
+  .nav-link:hover{background:rgba(255,255,255,.08);color:#fff}
+
+  .pg{max-width:1040px;margin:0 auto;padding:52px 40px 80px}
+  .sec{margin-bottom:66px}
+  .eye{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:10px;
+  }
+  .stitle{
+    font-size:23px;
+    font-weight:600;
+    letter-spacing:-.5px;
+    margin-bottom:22px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .snum{
+    width:30px;
+    height:30px;
+    border-radius:7px;
+    background:var(--ink);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    flex-shrink:0;
+  }
+
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  .g2x1{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+  .g1x2{display:grid;grid-template-columns:1fr 2fr;gap:16px}
+
+  .cw{
+    background:#0a0d14;
+    border:1.5px solid #1e2230;
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+  .ctop{
+    background:#141820;
+    border-bottom:1px solid #1e2230;
+    padding:10px 16px;
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+  .dr,.dy,.dg{width:10px;height:10px;border-radius:50%}
+  .dr{background:#ff5f57}
+  .dy{background:#febc2e}
+  .dg{background:#28c840}
+  .clang{
+    margin-left:auto;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:#4b5565;
+  }
+  .cw pre{
+    padding:20px 22px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    line-height:1.85;
+    overflow-x:auto;
+    color:#c9d1d9;
+  }
+  .kw{color:#ff79c6}
+  .fn{color:#50fa7b}
+  .cm{color:#4a5e7a;font-style:italic}
+  .nm{color:#bd93f9}
+  .op{color:#ff6b35}
+  .st{color:#f1fa8c}
+
+  .vz,
+  .ic,
+  .pc{
+    background:var(--panel);
+    border:1.5px solid var(--border);
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+  .vz-lbl,
+  .ic-lbl,
+  .pc-lbl{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .vz-lbl{
+    padding:13px 18px 10px;
+    border-bottom:1px solid var(--border);
+  }
+  .vz svg{width:100%;display:block}
+
+  .ic-head,
+  .pc-head{padding:16px 20px 12px;border-bottom:1px solid var(--border)}
+  .ic-ttl,
+  .pc-name{font-size:14px;font-weight:600}
+  .ic-body,
+  .pc-desc{
+    padding:14px 20px 16px;
+    font-size:13px;
+    color:#555;
+    line-height:1.65;
+  }
+  .ic-body code,
+  .pc-desc code{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    background:var(--tag-bg);
+    padding:1px 5px;
+    border-radius:3px;
+    color:var(--ink);
+  }
+  .ps{height:4px}
+  .pc-viz{border-bottom:1px solid var(--border)}
+  .pc-footer{padding:0 18px 16px;display:flex;gap:6px;flex-wrap:wrap}
+  .chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px;
+    padding:3px 8px;
+    border-radius:4px;
+    color:#fff;
+    font-weight:600;
+  }
+
+  .note-box{
+    background:rgba(13,13,13,.03);
+    border:1.5px solid var(--border);
+    border-radius:12px;
+    padding:14px 16px;
+    font-size:13px;
+    color:#555;
+    line-height:1.6;
+    margin-top:14px;
+  }
+  .note-box strong{color:var(--ink)}
+
+  .compare-grid{
+    display:grid;
+    grid-template-columns:repeat(7,minmax(135px,1fr));
+    gap:12px;
+  }
+  .compare-card{
+    background:var(--panel);
+    border:1.5px solid var(--border);
+    border-radius:14px;
+    padding:14px 14px 16px;
+    box-shadow:var(--shadow);
+  }
+  .compare-tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9px;
+    letter-spacing:1.8px;
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .compare-name{
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .compare-line{
+    font-size:12px;
+    color:#555;
+    line-height:1.55;
+    margin-top:6px;
+  }
+  .compare-line strong{
+    display:block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:3px;
+  }
+
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-top:22px;
+  }
+  .sc{
+    background:linear-gradient(180deg,#111 0%,#1a1a1a 100%);
+    color:#fff;
+    border-radius:14px;
+    padding:22px 18px;
+    text-align:center;
+    box-shadow:var(--shadow);
+  }
+  .sb{
+    font-size:30px;
+    font-weight:700;
+    letter-spacing:-1px;
+    line-height:1;
+    margin-bottom:7px;
+  }
+  .ss{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:rgba(255,255,255,.42);
+    line-height:1.6;
+  }
+
+  .hr{border:none;border-top:1.5px solid var(--border);margin:56px 0}
+  .ft{
+    background:var(--ink);
+    color:rgba(255,255,255,.34);
+    padding:22px 48px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .ft span{color:rgba(255,255,255,.62)}
+  .ft a{color:rgba(255,255,255,.52);text-decoration:none}
+  .ft a:hover{color:#fff}
+
+  @media(max-width:960px){
+    .compare-grid{grid-template-columns:repeat(2,1fr)}
+  }
+  @media(max-width:760px){
+    .g2,.g3,.g2x1,.g1x2,.compare-grid{grid-template-columns:1fr}
+    .stats{grid-template-columns:1fr 1fr}
+    .pg{padding:34px 20px 60px}
+    .hd{padding:42px 24px 34px}
+    .ft{padding:18px 24px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div class="hd-eye">Algorithm Design Patterns · Graph Reference Guide</div>
+  <h1>Graph<br/><em>Patterns</em></h1>
+  <p class="hd-copy">Seven reusable graph patterns, with diagrams that show the actual mechanics: queue growth, recursion depth, in-degree countdowns, parent compression, simultaneous wavefronts, priority queues, and 2-color conflicts.</p>
+  <div class="hd-pills">
+    <span class="hd-pill">BFS</span>
+    <span class="hd-pill">DFS</span>
+    <span class="hd-pill">Topological Sort</span>
+    <span class="hd-pill">Union Find</span>
+    <span class="hd-pill">Multi-Source BFS</span>
+    <span class="hd-pill">Dijkstra</span>
+    <span class="hd-pill">Bipartite Check</span>
+  </div>
+  <a href="problems.html" class="nav-link">30 Problems →</a>
+</header>
+
+<div class="pg">
+
+  <div class="sec">
+    <div class="eye">① Breadth-First Search</div>
+    <div class="stitle"><span class="snum">1</span> BFS — Level-by-Level Exploration</div>
+
+    <div class="g2x1" style="margin-bottom:14px;">
+      <div class="vz">
+        <div class="vz-lbl">BFS expansion — each ring is one level deeper</div>
+        <svg viewBox="0 0 580 200" xmlns="http://www.w3.org/2000/svg">
+          <rect width="580" height="200" fill="#F5F3EE"/>
+          <circle cx="110" cy="100" r="80" fill="none" stroke="#1A1AFF" stroke-width="1" stroke-dasharray="4,3" opacity=".18"/>
+          <circle cx="110" cy="100" r="54" fill="none" stroke="#1A1AFF" stroke-width="1" stroke-dasharray="4,3" opacity=".28"/>
+          <circle cx="110" cy="100" r="28" fill="none" stroke="#1A1AFF" stroke-width="1.5" stroke-dasharray="4,3" opacity=".4"/>
+
+          <circle cx="110" cy="100" r="12" fill="#1A1AFF"/>
+          <text x="110" y="104" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#fff" font-weight="bold">S</text>
+
+          <line x1="110" y1="88" x2="110" y2="62" stroke="#1A1AFF" stroke-width="1.5"/>
+          <circle cx="110" cy="56" r="9" fill="#4444FF" stroke="#1A1AFF" stroke-width="1.5"/>
+          <text x="110" y="60" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#fff">1</text>
+
+          <line x1="122" y1="105" x2="148" y2="108" stroke="#1A1AFF" stroke-width="1.5"/>
+          <circle cx="156" cy="109" r="9" fill="#4444FF" stroke="#1A1AFF" stroke-width="1.5"/>
+          <text x="156" y="113" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#fff">1</text>
+
+          <line x1="105" y1="111" x2="82" y2="130" stroke="#1A1AFF" stroke-width="1.5"/>
+          <circle cx="76" cy="136" r="9" fill="#4444FF" stroke="#1A1AFF" stroke-width="1.5"/>
+          <text x="76" y="140" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#fff">1</text>
+
+          <line x1="110" y1="47" x2="82" y2="30" stroke="#6666EE" stroke-width="1"/>
+          <circle cx="76" cy="24" r="9" fill="#AABBFF" stroke="#6666EE" stroke-width="1.5"/>
+          <text x="76" y="28" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#1A1AFF">2</text>
+
+          <line x1="119" y1="48" x2="142" y2="33" stroke="#6666EE" stroke-width="1"/>
+          <circle cx="148" cy="27" r="9" fill="#AABBFF" stroke="#6666EE" stroke-width="1.5"/>
+          <text x="148" y="31" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#1A1AFF">2</text>
+
+          <line x1="165" y1="110" x2="182" y2="88" stroke="#6666EE" stroke-width="1"/>
+          <circle cx="188" cy="82" r="9" fill="#AABBFF" stroke="#6666EE" stroke-width="1.5"/>
+          <text x="188" y="86" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#1A1AFF">2</text>
+
+          <line x1="68" y1="140" x2="44" y2="152" stroke="#6666EE" stroke-width="1"/>
+          <circle cx="36" cy="157" r="9" fill="#AABBFF" stroke="#6666EE" stroke-width="1.5"/>
+          <text x="36" y="161" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#1A1AFF">2</text>
+
+          <text x="112" y="96" font-family="'IBM Plex Mono',monospace" font-size="7.5" fill="rgba(26,26,255,.5)">d=0</text>
+          <text x="136" y="68" font-family="'IBM Plex Mono',monospace" font-size="7.5" fill="rgba(26,26,255,.5)">d=1</text>
+          <text x="172" y="40" font-family="'IBM Plex Mono',monospace" font-size="7.5" fill="rgba(26,26,255,.5)">d=2</text>
+
+          <line x1="218" y1="10" x2="218" y2="190" stroke="#E0E0E0" stroke-width="1.5"/>
+
+          <text x="234" y="22" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888" letter-spacing="2">QUEUE STATE</text>
+
+          <text x="234" y="44" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#1A1AFF">init:</text>
+          <rect x="268" y="33" width="22" height="18" rx="3" fill="#1A1AFF"/>
+          <text x="279" y="46" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#fff">S</text>
+          <text x="296" y="44" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">enqueue start</text>
+
+          <text x="234" y="72" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#1A1AFF">poll S:</text>
+          <rect x="278" y="61" width="22" height="18" rx="3" fill="#4444FF" opacity=".8"/>
+          <text x="289" y="74" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#fff">1</text>
+          <rect x="303" y="61" width="22" height="18" rx="3" fill="#4444FF" opacity=".8"/>
+          <text x="314" y="74" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#fff">1</text>
+          <rect x="328" y="61" width="22" height="18" rx="3" fill="#4444FF" opacity=".8"/>
+          <text x="339" y="74" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#fff">1</text>
+          <text x="360" y="72" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">distance-1 frontier</text>
+
+          <text x="234" y="100" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#1A1AFF">poll 1s:</text>
+          <rect x="280" y="89" width="22" height="18" rx="3" fill="#AABBFF" stroke="#1A1AFF" stroke-width="1"/>
+          <text x="291" y="102" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#1A1AFF">2</text>
+          <rect x="305" y="89" width="22" height="18" rx="3" fill="#AABBFF" stroke="#1A1AFF" stroke-width="1"/>
+          <text x="316" y="102" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#1A1AFF">2</text>
+          <rect x="330" y="89" width="22" height="18" rx="3" fill="#AABBFF" stroke="#1A1AFF" stroke-width="1"/>
+          <text x="341" y="102" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#1A1AFF">2</text>
+          <rect x="355" y="89" width="22" height="18" rx="3" fill="#AABBFF" stroke="#1A1AFF" stroke-width="1"/>
+          <text x="366" y="102" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#1A1AFF">2</text>
+          <text x="384" y="100" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">distance-2 frontier</text>
+
+          <rect x="234" y="120" width="330" height="62" rx="8" fill="white" stroke="#D8D4CC" stroke-width="1.5"/>
+          <text x="248" y="138" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">GUARANTEES</text>
+          <text x="248" y="153" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#1A1AFF">Shortest path in an unweighted graph</text>
+          <text x="248" y="167" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#1A1AFF">Nodes leave the queue in non-decreasing distance</text>
+          <text x="248" y="181" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">Mark visited at enqueue time to avoid duplicates</text>
+        </svg>
+      </div>
+
+      <div class="cw">
+        <div class="ctop"><div class="dr"></div><div class="dy"></div><div class="dg"></div><span class="clang">Java template</span></div>
+        <pre><span class="cm">// Standard BFS template</span>
+Queue&lt;T&gt; q = <span class="kw">new</span> <span class="fn">LinkedList</span>&lt;&gt;();
+Set&lt;T&gt; visited = <span class="kw">new</span> <span class="fn">HashSet</span>&lt;&gt;();
+q.add(start);
+visited.add(start);
+
+<span class="kw">while</span> (!q.isEmpty()) {
+  T node = q.poll();
+  <span class="cm">// process node</span>
+  <span class="kw">for</span> (T neighbor : <span class="fn">getNeighbors</span>(node)) {
+    <span class="kw">if</span> (!visited.contains(neighbor)) {
+      visited.add(neighbor);
+      q.add(neighbor);
+    }
+  }
+}
+<span class="cm">// Level-order variant:</span>
+<span class="cm">// freeze q.size() per layer</span></pre>
+      </div>
+    </div>
+
+    <div class="g3">
+      <div class="ic">
+        <div class="ic-head"><div class="ic-lbl">complexity</div><div class="ic-ttl">O(V + E) time · O(V) space</div></div>
+        <div class="ic-body">Each vertex is processed once, and each edge is examined once. The queue and visited structure each grow to at most <code>V</code>.</div>
+      </div>
+      <div class="ic">
+        <div class="ic-head"><div class="ic-lbl">when to use</div><div class="ic-ttl">Shortest path, level order, minimum steps</div></div>
+        <div class="ic-body">Word Ladder, Walls and Gates, 01 Matrix, Rotting Oranges, shortest path in an unweighted graph or grid.</div>
+      </div>
+      <div class="ic">
+        <div class="ic-head"><div class="ic-lbl">key gotcha</div><div class="ic-ttl">Visit on enqueue, not on poll</div></div>
+        <div class="ic-body">If you only mark visited when removing nodes from the queue, the same node can be enqueued many times and blow up runtime.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="eye">② Depth-First Search</div>
+    <div class="stitle"><span class="snum">2</span> DFS — Deep Dive then Backtrack</div>
+
+    <div class="g2" style="margin-bottom:14px;">
+      <div class="vz">
+        <div class="vz-lbl">DFS call stack — explore fully before backtracking</div>
+        <svg viewBox="0 0 560 180" xmlns="http://www.w3.org/2000/svg">
+          <rect width="560" height="180" fill="#F5F3EE"/>
+
+          <circle cx="80" cy="40" r="14" fill="#CC0050"/>
+          <text x="80" y="44" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#fff" font-weight="bold">A</text>
+          <text x="80" y="23" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#CC0050">visit 1</text>
+
+          <line x1="94" y1="40" x2="126" y2="60" stroke="#CC0050" stroke-width="2"/>
+          <circle cx="136" cy="66" r="14" fill="#CC0050"/>
+          <text x="136" y="70" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#fff" font-weight="bold">B</text>
+          <text x="136" y="49" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#CC0050">visit 2</text>
+
+          <line x1="150" y1="66" x2="182" y2="86" stroke="#CC0050" stroke-width="2"/>
+          <circle cx="192" cy="92" r="14" fill="#CC0050"/>
+          <text x="192" y="96" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#fff" font-weight="bold">C</text>
+          <text x="192" y="75" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#CC0050">visit 3</text>
+
+          <line x1="192" y1="106" x2="192" y2="130" stroke="#CC0050" stroke-width="1.5" stroke-dasharray="3,2"/>
+          <text x="192" y="143" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">leaf reached → return</text>
+
+          <line x1="84" y1="50" x2="60" y2="100" stroke="#EE6688" stroke-width="1.5" stroke-dasharray="2,2"/>
+          <circle cx="54" cy="112" r="14" fill="#EE6688" opacity=".8"/>
+          <text x="54" y="116" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#fff">D</text>
+          <text x="30" y="112" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#888">visit 4</text>
+          <text x="14" y="124" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#888">after C returns</text>
+
+          <line x1="245" y1="10" x2="245" y2="172" stroke="#E0E0E0" stroke-width="1.5"/>
+          <text x="262" y="22" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888" letter-spacing="2">CALL STACK</text>
+
+          <rect x="262" y="30" width="260" height="22" rx="3" fill="#CC0050" opacity=".9"/>
+          <text x="392" y="45" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#fff">dfs(A)  bottom frame</text>
+
+          <rect x="270" y="56" width="244" height="22" rx="3" fill="#CC0050" opacity=".75"/>
+          <text x="392" y="71" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#fff">dfs(B)</text>
+
+          <rect x="278" y="82" width="228" height="22" rx="3" fill="#CC0050" opacity=".6"/>
+          <text x="392" y="97" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#fff">dfs(C)  current frame</text>
+
+          <text x="262" y="124" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">Unwind order:</text>
+          <text x="262" y="139" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#CC0050">C returns → B continues → dfs(D)</text>
+          <text x="262" y="154" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#CC0050">D returns → B returns → A done</text>
+          <text x="262" y="168" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">Visit order depends on neighbor ordering</text>
+        </svg>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="cw">
+          <div class="ctop"><div class="dr"></div><div class="dy"></div><div class="dg"></div><span class="clang">Java template</span></div>
+          <pre><span class="cm">// Recursive DFS on a grid</span>
+<span class="kw">void</span> <span class="fn">dfs</span>(<span class="kw">int</span> r, <span class="kw">int</span> c, <span class="kw">boolean</span>[][] vis) {
+  vis[r][c] = <span class="kw">true</span>;
+  <span class="kw">int</span>[] dr = {<span class="nm">1</span>, <span class="op">-</span><span class="nm">1</span>, <span class="nm">0</span>, <span class="nm">0</span>};
+  <span class="kw">int</span>[] dc = {<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">1</span>, <span class="op">-</span><span class="nm">1</span>};
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">4</span>; i++) {
+    <span class="kw">int</span> nr = r + dr[i], nc = c + dc[i];
+    <span class="kw">if</span> (valid(nr, nc) &amp;&amp; !vis[nr][nc]) {
+      <span class="fn">dfs</span>(nr, nc, vis);
+    }
+  }
+}</pre>
+        </div>
+        <div class="ic">
+          <div class="ic-head"><div class="ic-lbl">when to use</div><div class="ic-ttl">Connected components, flood fill, cycle detection</div></div>
+          <div class="ic-body">Number of Islands, Clone Graph, Pacific Atlantic, Surrounded Regions, and directed-cycle checks with a recursion state.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="vz">
+      <div class="vz-lbl">DFS flood-fill on grid (Number of Islands pattern)</div>
+      <svg viewBox="0 0 900 110" xmlns="http://www.w3.org/2000/svg">
+        <rect width="900" height="110" fill="#F5F3EE"/>
+
+        <text x="16" y="16" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">original grid</text>
+        <rect x="16" y="22" width="28" height="28" rx="2" fill="#CC0050"/><text x="30" y="40" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#fff">1</text>
+        <rect x="47" y="22" width="28" height="28" rx="2" fill="#CC0050"/><text x="61" y="40" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#fff">1</text>
+        <rect x="78" y="22" width="28" height="28" rx="2" fill="#CC0050"/><text x="92" y="40" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#fff">1</text>
+        <rect x="109" y="22" width="28" height="28" rx="2" fill="#F0F0F0" stroke="#DDD"/><text x="123" y="40" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#BBB">0</text>
+        <rect x="140" y="22" width="28" height="28" rx="2" fill="#F0F0F0" stroke="#DDD"/><text x="154" y="40" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#BBB">0</text>
+
+        <rect x="16" y="53" width="28" height="28" rx="2" fill="#CC0050"/><text x="30" y="71" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#fff">1</text>
+        <rect x="47" y="53" width="28" height="28" rx="2" fill="#F0F0F0" stroke="#DDD"/><text x="61" y="71" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#BBB">0</text>
+        <rect x="78" y="53" width="28" height="28" rx="2" fill="#F0F0F0" stroke="#DDD"/><text x="92" y="71" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#BBB">0</text>
+        <rect x="109" y="53" width="28" height="28" rx="2" fill="#EE6699"/><text x="123" y="71" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#fff">1</text>
+        <rect x="140" y="53" width="28" height="28" rx="2" fill="#EE6699"/><text x="154" y="71" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#fff">1</text>
+
+        <rect x="16" y="84" width="28" height="28" rx="2" fill="#F0F0F0" stroke="#DDD"/><text x="30" y="102" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#BBB">0</text>
+        <rect x="47" y="84" width="28" height="28" rx="2" fill="#F0F0F0" stroke="#DDD"/><text x="61" y="102" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#BBB">0</text>
+        <rect x="78" y="84" width="28" height="28" rx="2" fill="#F0F0F0" stroke="#DDD"/><text x="92" y="102" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#BBB">0</text>
+        <rect x="109" y="84" width="28" height="28" rx="2" fill="#EE6699"/><text x="123" y="102" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#fff">1</text>
+        <rect x="140" y="84" width="28" height="28" rx="2" fill="#F0F0F0" stroke="#DDD"/><text x="154" y="102" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#BBB">0</text>
+
+        <text x="184" y="60" font-family="'IBM Plex Mono',monospace" font-size="22" fill="#CC0050">→</text>
+
+        <text x="210" y="16" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">after DFS from (0,0)</text>
+        <rect x="210" y="22" width="28" height="28" rx="2" fill="#F0E0E5" stroke="#CC0050"/><text x="224" y="40" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#CC0050">0</text>
+        <rect x="241" y="22" width="28" height="28" rx="2" fill="#F0E0E5" stroke="#CC0050"/><text x="255" y="40" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#CC0050">0</text>
+        <rect x="272" y="22" width="28" height="28" rx="2" fill="#F0E0E5" stroke="#CC0050"/><text x="286" y="40" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#CC0050">0</text>
+        <rect x="303" y="22" width="28" height="28" rx="2" fill="#F0F0F0" stroke="#DDD"/><text x="317" y="40" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#BBB">0</text>
+        <rect x="334" y="22" width="28" height="28" rx="2" fill="#F0F0F0" stroke="#DDD"/><text x="348" y="40" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#BBB">0</text>
+
+        <rect x="210" y="53" width="28" height="28" rx="2" fill="#F0E0E5" stroke="#CC0050"/><text x="224" y="71" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#CC0050">0</text>
+        <rect x="241" y="53" width="28" height="28" rx="2" fill="#F0F0F0" stroke="#DDD"/><text x="255" y="71" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#BBB">0</text>
+        <rect x="272" y="53" width="28" height="28" rx="2" fill="#F0F0F0" stroke="#DDD"/><text x="286" y="71" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#BBB">0</text>
+        <rect x="303" y="53" width="28" height="28" rx="2" fill="#EE6699"/><text x="317" y="71" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#fff">1</text>
+        <rect x="334" y="53" width="28" height="28" rx="2" fill="#EE6699"/><text x="348" y="71" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#fff">1</text>
+
+        <rect x="210" y="84" width="28" height="28" rx="2" fill="#F0F0F0" stroke="#DDD"/><text x="224" y="102" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#BBB">0</text>
+        <rect x="241" y="84" width="28" height="28" rx="2" fill="#F0F0F0" stroke="#DDD"/><text x="255" y="102" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#BBB">0</text>
+        <rect x="272" y="84" width="28" height="28" rx="2" fill="#F0F0F0" stroke="#DDD"/><text x="286" y="102" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#BBB">0</text>
+        <rect x="303" y="84" width="28" height="28" rx="2" fill="#EE6699"/><text x="317" y="102" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#fff">1</text>
+        <rect x="334" y="84" width="28" height="28" rx="2" fill="#F0F0F0" stroke="#DDD"/><text x="348" y="102" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#BBB">0</text>
+
+        <text x="378" y="60" font-family="'IBM Plex Mono',monospace" font-size="22" fill="#888">→</text>
+
+        <text x="410" y="16" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">count remaining pink island</text>
+        <text x="410" y="50" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#CC0050">island 1: {(0,0),(0,1),(0,2),(1,0)}</text>
+        <text x="410" y="68" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#EE6699">island 2: {(1,3),(1,4),(2,3)}</text>
+        <text x="410" y="90" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">Mark visited by mutating the grid</text>
+        <text x="410" y="105" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">to avoid a separate visited array</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="eye">③ Topological Sort</div>
+    <div class="stitle"><span class="snum">3</span> Topological Sort — Order a DAG</div>
+
+    <div class="vz" style="margin-bottom:14px;">
+      <div class="vz-lbl">Kahn's algorithm (BFS-based) — indegree countdown</div>
+      <svg viewBox="0 0 900 170" xmlns="http://www.w3.org/2000/svg">
+        <rect width="900" height="170" fill="#F5F3EE"/>
+        <defs><marker id="ga" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0L8,3L0,6Z" fill="#007A3D"/></marker></defs>
+
+        <text x="16" y="18" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">1. build indegree map</text>
+
+        <circle cx="50" cy="70" r="18" fill="#007A3D"/>
+        <text x="50" y="74" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#fff" font-weight="bold">A</text>
+        <text x="50" y="54" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#007A3D">in=0</text>
+
+        <circle cx="50" cy="130" r="18" fill="#007A3D"/>
+        <text x="50" y="134" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#fff" font-weight="bold">B</text>
+        <text x="50" y="114" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#007A3D">in=0</text>
+
+        <line x1="68" y1="74" x2="110" y2="92" stroke="#007A3D" stroke-width="1.5" marker-end="url(#ga)"/>
+        <line x1="68" y1="126" x2="110" y2="108" stroke="#007A3D" stroke-width="1.5" marker-end="url(#ga)"/>
+
+        <circle cx="128" cy="100" r="18" fill="#4A9A6A"/>
+        <text x="128" y="104" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#fff" font-weight="bold">C</text>
+        <text x="128" y="84" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#4A9A6A">in=2</text>
+
+        <line x1="146" y1="100" x2="186" y2="100" stroke="#007A3D" stroke-width="1.5" marker-end="url(#ga)"/>
+        <circle cx="204" cy="100" r="18" fill="#4A9A6A"/>
+        <text x="204" y="104" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#fff" font-weight="bold">D</text>
+        <text x="204" y="84" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#4A9A6A">in=1</text>
+
+        <line x1="250" y1="10" x2="250" y2="165" stroke="#E0E0E0" stroke-width="1.5"/>
+
+        <text x="266" y="18" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">2. queue all in-degree 0 nodes</text>
+        <rect x="266" y="26" width="34" height="28" rx="4" fill="#007A3D"/>
+        <text x="283" y="44" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#fff">A</text>
+        <rect x="304" y="26" width="34" height="28" rx="4" fill="#007A3D"/>
+        <text x="321" y="44" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#fff">B</text>
+        <text x="344" y="40" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">Queue = [A, B]</text>
+
+        <text x="266" y="76" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">3. poll A → decrement C</text>
+        <rect x="266" y="84" width="128" height="24" rx="4" fill="#E8F5EE" stroke="#007A3D" stroke-width="1.5"/>
+        <text x="330" y="100" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#007A3D">result=[A], C: 2 → 1</text>
+
+        <text x="266" y="126" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">4. poll B → C hits 0</text>
+        <rect x="266" y="134" width="128" height="24" rx="4" fill="#E8F5EE" stroke="#007A3D" stroke-width="1.5"/>
+        <text x="330" y="150" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#007A3D">result=[A,B], enqueue C</text>
+
+        <line x1="416" y1="10" x2="416" y2="165" stroke="#E0E0E0" stroke-width="1.5"/>
+
+        <text x="432" y="18" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">5. continue until queue empty</text>
+        <rect x="432" y="26" width="34" height="28" rx="4" fill="#007A3D" opacity=".92"/><text x="449" y="44" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#fff">A</text>
+        <rect x="470" y="26" width="34" height="28" rx="4" fill="#007A3D" opacity=".92"/><text x="487" y="44" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#fff">B</text>
+        <rect x="508" y="26" width="34" height="28" rx="4" fill="#007A3D" opacity=".72"/><text x="525" y="44" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#fff">C</text>
+        <rect x="546" y="26" width="34" height="28" rx="4" fill="#007A3D" opacity=".52"/><text x="563" y="44" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#fff">D</text>
+
+        <rect x="432" y="74" width="360" height="78" rx="8" fill="white" stroke="#D8D4CC" stroke-width="1.5"/>
+        <text x="448" y="92" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">CYCLE DETECTION</text>
+        <text x="448" y="108" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#007A3D">If result.length &lt; numNodes, some cycle blocked progress</text>
+        <text x="448" y="123" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">Nodes inside a cycle never drop to in-degree 0,</text>
+        <text x="448" y="138" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">so they never enter the queue.</text>
+        <text x="448" y="153" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#007A3D">Used in Course Schedule, Alien Dictionary, dependency graphs</text>
+      </svg>
+    </div>
+
+    <div class="g3">
+      <div class="ic"><div class="ic-head"><div class="ic-lbl">step 1</div><div class="ic-ttl">Build indegree map</div></div><div class="ic-body">For every directed edge <code>u → v</code>, increment <code>indegree[v]</code>. Include nodes with zero indegree too.</div></div>
+      <div class="ic"><div class="ic-head"><div class="ic-lbl">step 2</div><div class="ic-ttl">Seed the zero-indegree queue</div></div><div class="ic-body">These nodes have no prerequisites, so they can appear earliest in the ordering.</div></div>
+      <div class="ic"><div class="ic-head"><div class="ic-lbl">step 3</div><div class="ic-ttl">Peel layers until empty</div></div><div class="ic-body">Processing a node removes its outgoing edges. Any neighbor that falls to zero indegree becomes newly available.</div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="eye">④ Union Find (Disjoint Set Union)</div>
+    <div class="stitle"><span class="snum">4</span> Union Find — Merge &amp; Query Components</div>
+
+    <div class="g2" style="margin-bottom:14px;">
+      <div class="vz">
+        <div class="vz-lbl">Union with path compression — parent array and tree shape</div>
+        <svg viewBox="0 0 520 220" xmlns="http://www.w3.org/2000/svg">
+          <rect width="520" height="220" fill="#F5F3EE"/>
+
+          <text x="16" y="18" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">initial parent array</text>
+          <rect x="16" y="26" width="30" height="24" rx="4" fill="#F2E7FF" stroke="#8B00FF"/><text x="31" y="42" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#8B00FF">0→0</text>
+          <rect x="50" y="26" width="30" height="24" rx="4" fill="#F2E7FF" stroke="#8B00FF"/><text x="65" y="42" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#8B00FF">1→1</text>
+          <rect x="84" y="26" width="30" height="24" rx="4" fill="#F2E7FF" stroke="#8B00FF"/><text x="99" y="42" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#8B00FF">2→2</text>
+          <rect x="118" y="26" width="30" height="24" rx="4" fill="#F2E7FF" stroke="#8B00FF"/><text x="133" y="42" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#8B00FF">3→3</text>
+          <rect x="152" y="26" width="30" height="24" rx="4" fill="#F2E7FF" stroke="#8B00FF"/><text x="167" y="42" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#8B00FF">4→4</text>
+
+          <text x="16" y="72" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">after union(0,1), union(2,3), union(1,2)</text>
+
+          <circle cx="84" cy="112" r="13" fill="#8B00FF"/>
+          <text x="84" y="117" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#fff" font-weight="bold">0</text>
+          <text x="84" y="94" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#8B00FF">root</text>
+
+          <defs><marker id="ufa" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0L6,3L0,6Z" fill="#8B00FF"/></marker></defs>
+          <line x1="55" y1="126" x2="72" y2="119" stroke="#8B00FF" stroke-width="1.5" marker-end="url(#ufa)"/>
+          <circle cx="44" cy="131" r="10" fill="#CDB1FF" stroke="#8B00FF"/>
+          <text x="44" y="135" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#8B00FF">1</text>
+
+          <line x1="113" y1="119" x2="125" y2="126" stroke="#8B00FF" stroke-width="1.5" marker-end="url(#ufa)"/>
+          <circle cx="135" cy="132" r="10" fill="#CDB1FF" stroke="#8B00FF"/>
+          <text x="135" y="136" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#8B00FF">2</text>
+
+          <line x1="135" y1="142" x2="135" y2="164" stroke="#8B00FF" stroke-width="1.5" marker-end="url(#ufa)"/>
+          <circle cx="135" cy="177" r="9" fill="#E8D8FF" stroke="#8B00FF"/>
+          <text x="135" y="181" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#8B00FF">3</text>
+
+          <circle cx="198" cy="132" r="10" fill="#F2E7FF" stroke="#8B00FF"/>
+          <text x="198" y="136" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#8B00FF">4</text>
+          <text x="184" y="154" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#888">isolated set</text>
+
+          <line x1="242" y1="18" x2="242" y2="202" stroke="#E0E0E0" stroke-width="1.5"/>
+
+          <text x="258" y="18" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">find(3) compresses the path</text>
+          <text x="258" y="36" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#8B00FF">before: 3 → 2 → 0</text>
+          <text x="258" y="52" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#8B00FF">after:  3 → 0 directly</text>
+
+          <circle cx="286" cy="92" r="11" fill="#8B00FF"/><text x="286" y="96" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#fff">0</text>
+          <circle cx="286" cy="132" r="10" fill="#CDB1FF" stroke="#8B00FF"/><text x="286" y="136" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#8B00FF">2</text>
+          <circle cx="286" cy="170" r="10" fill="#E8D8FF" stroke="#8B00FF"/><text x="286" y="174" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#8B00FF">3</text>
+          <line x1="286" y1="103" x2="286" y2="121" stroke="#C9C9C9" stroke-width="1.5"/>
+          <line x1="286" y1="142" x2="286" y2="159" stroke="#C9C9C9" stroke-width="1.5"/>
+
+          <text x="314" y="136" font-family="'IBM Plex Mono',monospace" font-size="16" fill="#8B00FF">→</text>
+
+          <circle cx="390" cy="92" r="11" fill="#8B00FF"/><text x="390" y="96" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#fff">0</text>
+          <circle cx="362" cy="132" r="10" fill="#CDB1FF" stroke="#8B00FF"/><text x="362" y="136" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#8B00FF">2</text>
+          <circle cx="418" cy="132" r="10" fill="#E8D8FF" stroke="#8B00FF"/><text x="418" y="136" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#8B00FF">3</text>
+          <line x1="370" y1="123" x2="383" y2="100" stroke="#8B00FF" stroke-width="1.5" marker-end="url(#ufa)"/>
+          <line x1="410" y1="123" x2="397" y2="100" stroke="#8B00FF" stroke-width="1.5" marker-end="url(#ufa)"/>
+
+          <rect x="334" y="166" width="154" height="32" rx="8" fill="white" stroke="#D8D4CC"/>
+          <text x="346" y="184" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">compressed parent array</text>
+          <text x="346" y="195" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#8B00FF">parent[3] = 0, future finds become cheaper</text>
+        </svg>
+      </div>
+
+      <div class="cw">
+        <div class="ctop"><div class="dr"></div><div class="dy"></div><div class="dg"></div><span class="clang">Union Find — Java</span></div>
+        <pre><span class="kw">class</span> <span class="fn">UF</span> {
+  <span class="kw">int</span>[] parent, size;
+
+  <span class="fn">UF</span>(<span class="kw">int</span> n) {
+    parent = <span class="kw">new int</span>[n];
+    size = <span class="kw">new int</span>[n];
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) {
+      parent[i] = i;
+      size[i] = <span class="nm">1</span>;
+    }
+  }
+
+  <span class="kw">int</span> <span class="fn">find</span>(<span class="kw">int</span> p) {
+    <span class="kw">if</span> (parent[p] != p) {
+      parent[p] = <span class="fn">find</span>(parent[p]);
+    }
+    <span class="kw">return</span> parent[p];
+  }
+
+  <span class="kw">boolean</span> <span class="fn">union</span>(<span class="kw">int</span> p, <span class="kw">int</span> q) {
+    <span class="kw">int</span> rp = <span class="fn">find</span>(p), rq = <span class="fn">find</span>(q);
+    <span class="kw">if</span> (rp == rq) <span class="kw">return false</span>;
+    <span class="kw">if</span> (size[rp] &lt; size[rq]) {
+      <span class="kw">int</span> tmp = rp; rp = rq; rq = tmp;
+    }
+    parent[rq] = rp;
+    size[rp] += size[rq];
+    <span class="kw">return true</span>;
+  }
+}</pre>
+      </div>
+    </div>
+
+    <div class="g3">
+      <div class="ic"><div class="ic-head"><div class="ic-lbl">complexity</div><div class="ic-ttl">≈ O(α(N)) per op</div></div><div class="ic-body">With path compression and union by size or rank, operations are effectively constant for interview-scale input sizes.</div></div>
+      <div class="ic"><div class="ic-head"><div class="ic-lbl">when to use</div><div class="ic-ttl">Dynamic connectivity, group merging</div></div><div class="ic-body">Redundant Connection, Number of Provinces, Similar String Groups, Kruskal MST, or online <code>addEdge()</code> queries.</div></div>
+      <div class="ic"><div class="ic-head"><div class="ic-lbl">vs DFS/BFS</div><div class="ic-ttl">Online, not traversal-based</div></div><div class="ic-body">DFS and BFS traverse an existing graph. Union Find excels when edges arrive incrementally and you only care about component membership.</div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="eye">⑤ Multi-Source BFS</div>
+    <div class="stitle"><span class="snum">5</span> Multi-Source BFS — Simultaneously from All Sources</div>
+
+    <div class="g2" style="margin-bottom:14px;">
+      <div class="vz">
+        <div class="vz-lbl">Wavefront view — all sources start at distance 0 together</div>
+        <svg viewBox="0 0 580 190" xmlns="http://www.w3.org/2000/svg">
+          <rect width="580" height="190" fill="#F5F3EE"/>
+
+          <text x="16" y="18" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">seed all sources first</text>
+          <rect x="16" y="32" width="30" height="30" rx="4" fill="#C8900A"/><text x="31" y="52" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#fff" font-weight="bold">0</text>
+          <rect x="50" y="32" width="30" height="30" rx="4" fill="#F3EFE6" stroke="#D8D4CC"/><text x="65" y="52" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#BBB">1</text>
+          <rect x="84" y="32" width="30" height="30" rx="4" fill="#F3EFE6" stroke="#D8D4CC"/><text x="99" y="52" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#BBB">1</text>
+          <rect x="118" y="32" width="30" height="30" rx="4" fill="#F3EFE6" stroke="#D8D4CC"/><text x="133" y="52" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#BBB">1</text>
+          <rect x="16" y="66" width="30" height="30" rx="4" fill="#F3EFE6" stroke="#D8D4CC"/><text x="31" y="86" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#BBB">1</text>
+          <rect x="50" y="66" width="30" height="30" rx="4" fill="#F3EFE6" stroke="#D8D4CC"/><text x="65" y="86" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#BBB">1</text>
+          <rect x="84" y="66" width="30" height="30" rx="4" fill="#F3EFE6" stroke="#D8D4CC"/><text x="99" y="86" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#BBB">1</text>
+          <rect x="118" y="66" width="30" height="30" rx="4" fill="#C8900A"/><text x="133" y="86" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#fff" font-weight="bold">0</text>
+          <rect x="16" y="100" width="30" height="30" rx="4" fill="#F3EFE6" stroke="#D8D4CC"/><text x="31" y="120" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#BBB">1</text>
+          <rect x="50" y="100" width="30" height="30" rx="4" fill="#F3EFE6" stroke="#D8D4CC"/><text x="65" y="120" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#BBB">1</text>
+          <rect x="84" y="100" width="30" height="30" rx="4" fill="#F3EFE6" stroke="#D8D4CC"/><text x="99" y="120" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#BBB">1</text>
+          <rect x="118" y="100" width="30" height="30" rx="4" fill="#F3EFE6" stroke="#D8D4CC"/><text x="133" y="120" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#BBB">1</text>
+          <rect x="16" y="134" width="30" height="30" rx="4" fill="#F3EFE6" stroke="#D8D4CC"/><text x="31" y="154" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#BBB">1</text>
+          <rect x="50" y="134" width="30" height="30" rx="4" fill="#F3EFE6" stroke="#D8D4CC"/><text x="65" y="154" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#BBB">1</text>
+          <rect x="84" y="134" width="30" height="30" rx="4" fill="#F3EFE6" stroke="#D8D4CC"/><text x="99" y="154" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#BBB">1</text>
+          <rect x="118" y="134" width="30" height="30" rx="4" fill="#F3EFE6" stroke="#D8D4CC"/><text x="133" y="154" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#BBB">1</text>
+
+          <text x="172" y="96" font-family="'IBM Plex Mono',monospace" font-size="20" fill="#C8900A">→</text>
+
+          <text x="196" y="18" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">frontiers advance in sync</text>
+          <rect x="196" y="34" width="126" height="36" rx="8" fill="white" stroke="#D8D4CC"/>
+          <text x="208" y="49" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">queue after seeding</text>
+          <rect x="208" y="54" width="24" height="10" rx="2" fill="#C8900A"/>
+          <rect x="236" y="54" width="24" height="10" rx="2" fill="#C8900A"/>
+          <text x="268" y="62" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#C8900A">(0,0)  (1,3)</text>
+
+          <rect x="196" y="82" width="126" height="36" rx="8" fill="white" stroke="#D8D4CC"/>
+          <text x="208" y="97" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">first expansion</text>
+          <rect x="208" y="102" width="18" height="10" rx="2" fill="#E0BE63"/>
+          <rect x="230" y="102" width="18" height="10" rx="2" fill="#E0BE63"/>
+          <rect x="252" y="102" width="18" height="10" rx="2" fill="#E0BE63"/>
+          <rect x="274" y="102" width="18" height="10" rx="2" fill="#E0BE63"/>
+          <text x="300" y="110" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#C8900A">distance 1</text>
+
+          <rect x="196" y="130" width="126" height="36" rx="8" fill="white" stroke="#D8D4CC"/>
+          <text x="208" y="145" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">later expansion</text>
+          <rect x="208" y="150" width="18" height="10" rx="2" fill="#EDDAA5"/>
+          <rect x="230" y="150" width="18" height="10" rx="2" fill="#EDDAA5"/>
+          <rect x="252" y="150" width="18" height="10" rx="2" fill="#EDDAA5"/>
+          <text x="278" y="158" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#C8900A">distance 2+</text>
+
+          <text x="342" y="96" font-family="'IBM Plex Mono',monospace" font-size="20" fill="#C8900A">→</text>
+
+          <text x="364" y="18" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">final nearest-source distances</text>
+          <rect x="364" y="32" width="30" height="30" rx="4" fill="#C8900A"/><text x="379" y="52" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#fff" font-weight="bold">0</text>
+          <rect x="398" y="32" width="30" height="30" rx="4" fill="#E0BE63" stroke="#C8900A"/><text x="413" y="52" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#8A5E00">1</text>
+          <rect x="432" y="32" width="30" height="30" rx="4" fill="#EDDAA5" stroke="#C8900A"/><text x="447" y="52" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#8A5E00">2</text>
+          <rect x="466" y="32" width="30" height="30" rx="4" fill="#EDDAA5" stroke="#C8900A"/><text x="481" y="52" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#8A5E00">2</text>
+
+          <rect x="364" y="66" width="30" height="30" rx="4" fill="#E0BE63" stroke="#C8900A"/><text x="379" y="86" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#8A5E00">1</text>
+          <rect x="398" y="66" width="30" height="30" rx="4" fill="#EDDAA5" stroke="#C8900A"/><text x="413" y="86" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#8A5E00">2</text>
+          <rect x="432" y="66" width="30" height="30" rx="4" fill="#E0BE63" stroke="#C8900A"/><text x="447" y="86" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#8A5E00">1</text>
+          <rect x="466" y="66" width="30" height="30" rx="4" fill="#C8900A"/><text x="481" y="86" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#fff" font-weight="bold">0</text>
+
+          <rect x="364" y="100" width="30" height="30" rx="4" fill="#EDDAA5" stroke="#C8900A"/><text x="379" y="120" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#8A5E00">2</text>
+          <rect x="398" y="100" width="30" height="30" rx="4" fill="#F3E7C4" stroke="#C8900A"/><text x="413" y="120" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#8A5E00">3</text>
+          <rect x="432" y="100" width="30" height="30" rx="4" fill="#EDDAA5" stroke="#C8900A"/><text x="447" y="120" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#8A5E00">2</text>
+          <rect x="466" y="100" width="30" height="30" rx="4" fill="#E0BE63" stroke="#C8900A"/><text x="481" y="120" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#8A5E00">1</text>
+
+          <rect x="364" y="134" width="30" height="30" rx="4" fill="#F3E7C4" stroke="#C8900A"/><text x="379" y="154" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#8A5E00">3</text>
+          <rect x="398" y="134" width="30" height="30" rx="4" fill="#F8F0DA" stroke="#C8900A"/><text x="413" y="154" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#8A5E00">4</text>
+          <rect x="432" y="134" width="30" height="30" rx="4" fill="#F3E7C4" stroke="#C8900A"/><text x="447" y="154" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#8A5E00">3</text>
+          <rect x="466" y="134" width="30" height="30" rx="4" fill="#EDDAA5" stroke="#C8900A"/><text x="481" y="154" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#8A5E00">2</text>
+
+          <text x="364" y="180" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">Every cell gets the minimum distance to any source in one pass</text>
+        </svg>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="cw">
+          <div class="ctop"><div class="dr"></div><div class="dy"></div><div class="dg"></div><span class="clang">Multi-source BFS init</span></div>
+          <pre><span class="cm">// 1. Seed ALL sources at once</span>
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; m; i++) {
+  <span class="kw">for</span> (<span class="kw">int</span> j = <span class="nm">0</span>; j &lt; n; j++) {
+    <span class="kw">if</span> (mat[i][j] == <span class="nm">0</span>) q.add(<span class="kw">new int</span>[] {i, j});
+    <span class="kw">else</span> mat[i][j] = Integer.MAX_VALUE;
+  }
+}
+
+<span class="cm">// 2. Standard BFS from all seeds</span>
+<span class="kw">while</span> (!q.isEmpty()) {
+  <span class="kw">int</span>[] cur = q.poll();
+  <span class="kw">for</span> (<span class="kw">int</span> d = <span class="nm">0</span>; d &lt; <span class="nm">4</span>; d++) {
+    <span class="kw">int</span> nr = cur[<span class="nm">0</span>] + dr[d], nc = cur[<span class="nm">1</span>] + dc[d];
+    <span class="kw">if</span> (valid(nr, nc) &amp;&amp;
+        mat[nr][nc] &gt; mat[cur[<span class="nm">0</span>]][cur[<span class="nm">1</span>]] + <span class="nm">1</span>) {
+      mat[nr][nc] = mat[cur[<span class="nm">0</span>]][cur[<span class="nm">1</span>]] + <span class="nm">1</span>;
+      q.add(<span class="kw">new int</span>[] {nr, nc});
+    }
+  }
+}</pre>
+        </div>
+        <div class="ic">
+          <div class="ic-head"><div class="ic-lbl">key insight</div><div class="ic-ttl">Do not run BFS separately from each source</div></div>
+          <div class="ic-body">That repeats work and costs <code>O(k × V)</code>. Simultaneous seeding lets the first wave that reaches a cell define its optimal nearest-source distance.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="eye">⑥ Dijkstra's Algorithm</div>
+    <div class="stitle"><span class="snum">6</span> Dijkstra — Shortest Path with Weighted Edges</div>
+
+    <div class="g2" style="margin-bottom:14px;">
+      <div class="vz">
+        <div class="vz-lbl">Priority queue extracts the current minimum-distance node</div>
+        <svg viewBox="0 0 560 190" xmlns="http://www.w3.org/2000/svg">
+          <rect width="560" height="190" fill="#F5F3EE"/>
+          <defs><marker id="dj" markerWidth="7" markerHeight="6" refX="6" refY="3" orient="auto"><path d="M0,0L7,3L0,6Z" fill="#00707A"/></marker></defs>
+
+          <circle cx="54" cy="94" r="16" fill="#00707A"/>
+          <text x="54" y="98" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#fff" font-weight="bold">S</text>
+          <text x="54" y="72" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#00707A">d=0</text>
+
+          <circle cx="142" cy="48" r="16" fill="#38A5AE"/>
+          <text x="142" y="52" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#fff">A</text>
+          <text x="142" y="28" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#00707A">d=4</text>
+
+          <circle cx="142" cy="140" r="16" fill="#A7D3D6"/>
+          <text x="142" y="144" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#005B62">B</text>
+          <text x="142" y="162" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">tentative 8</text>
+
+          <circle cx="236" cy="94" r="16" fill="#38A5AE"/>
+          <text x="236" y="98" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#fff">C</text>
+          <text x="236" y="74" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#00707A">d=6</text>
+
+          <circle cx="328" cy="94" r="18" fill="#00707A"/>
+          <text x="328" y="98" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#fff" font-weight="bold">T</text>
+          <text x="328" y="72" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#00707A">final = 7</text>
+
+          <line x1="69" y1="84" x2="126" y2="57" stroke="#00707A" stroke-width="2.5" marker-end="url(#dj)"/>
+          <text x="95" y="62" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">4</text>
+
+          <line x1="69" y1="103" x2="126" y2="132" stroke="#88BFC3" stroke-width="2" marker-end="url(#dj)"/>
+          <text x="95" y="126" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">8</text>
+
+          <line x1="157" y1="56" x2="221" y2="86" stroke="#00707A" stroke-width="2.5" marker-end="url(#dj)"/>
+          <text x="180" y="60" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">2</text>
+
+          <line x1="157" y1="132" x2="221" y2="102" stroke="#88BFC3" stroke-width="2" marker-end="url(#dj)"/>
+          <text x="180" y="127" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">1</text>
+
+          <line x1="252" y1="94" x2="308" y2="94" stroke="#00707A" stroke-width="3" marker-end="url(#dj)"/>
+          <text x="278" y="86" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">1</text>
+
+          <line x1="142" y1="64" x2="142" y2="122" stroke="#B9D9DC" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <text x="148" y="98" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">5</text>
+
+          <line x1="364" y1="12" x2="364" y2="178" stroke="#E0E0E0" stroke-width="1.5"/>
+          <text x="380" y="20" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888" letter-spacing="1">PRIORITY QUEUE</text>
+
+          <rect x="380" y="30" width="160" height="22" rx="4" fill="#E8F2F3" stroke="#00707A"/>
+          <text x="460" y="45" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#00707A">[(0,S)]</text>
+
+          <rect x="380" y="58" width="160" height="22" rx="4" fill="#E8F2F3" stroke="#00707A"/>
+          <text x="460" y="73" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#00707A">after S: [(4,A),(8,B)]</text>
+
+          <rect x="380" y="86" width="160" height="22" rx="4" fill="#E8F2F3" stroke="#00707A"/>
+          <text x="460" y="101" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#00707A">after A: [(6,C),(8,B),(9,B)]</text>
+
+          <rect x="380" y="114" width="160" height="22" rx="4" fill="#E8F2F3" stroke="#00707A"/>
+          <text x="460" y="129" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#00707A">after C: [(7,T),(8,B),(9,B)]</text>
+
+          <rect x="380" y="142" width="160" height="22" rx="4" fill="#00707A"/>
+          <text x="460" y="157" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#fff">poll (7,T) → shortest path fixed</text>
+
+          <text x="380" y="178" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">Later (9,B) is stale and skipped because dist[B] is already 8</text>
+        </svg>
+      </div>
+
+      <div class="cw">
+        <div class="ctop"><div class="dr"></div><div class="dy"></div><div class="dg"></div><span class="clang">Dijkstra — Java</span></div>
+        <pre><span class="cm">// Shortest path in weighted graph</span>
+<span class="kw">int</span>[] dist = <span class="kw">new int</span>[n];
+Arrays.<span class="fn">fill</span>(dist, Integer.MAX_VALUE);
+dist[src] = <span class="nm">0</span>;
+
+PriorityQueue&lt;<span class="kw">int</span>[]&gt; pq =
+  <span class="kw">new</span> <span class="fn">PriorityQueue</span>&lt;&gt;((a, b) -&gt; a[<span class="nm">0</span>] - b[<span class="nm">0</span>]);
+pq.add(<span class="kw">new int</span>[] {<span class="nm">0</span>, src});
+
+<span class="kw">while</span> (!pq.isEmpty()) {
+  <span class="kw">int</span>[] cur = pq.poll();
+  <span class="kw">int</span> d = cur[<span class="nm">0</span>], u = cur[<span class="nm">1</span>];
+  <span class="kw">if</span> (d &gt; dist[u]) <span class="kw">continue</span>; <span class="cm">// stale heap entry</span>
+
+  <span class="kw">for</span> (<span class="kw">int</span>[] edge : adj[u]) {
+    <span class="kw">int</span> v = edge[<span class="nm">0</span>], w = edge[<span class="nm">1</span>];
+    <span class="kw">if</span> (dist[u] + w &lt; dist[v]) {
+      dist[v] = dist[u] + w;
+      pq.add(<span class="kw">new int</span>[] {dist[v], v});
+    }
+  }
+}</pre>
+      </div>
+    </div>
+
+    <div class="note-box"><strong>Key distinction:</strong> BFS assumes all edges cost the same, so “first seen” means optimal. Dijkstra replaces the FIFO queue with a min-heap so the next node processed is always the globally cheapest tentative path.</div>
+  </div>
+
+  <div class="sec">
+    <div class="eye">⑦ Bipartite Check</div>
+    <div class="stitle"><span class="snum">7</span> Bipartite Check — Graph 2-Coloring</div>
+
+    <div class="vz" style="margin-bottom:14px;">
+      <div class="vz-lbl">Alternate colors across edges — any same-color edge breaks bipartiteness</div>
+      <svg viewBox="0 0 900 170" xmlns="http://www.w3.org/2000/svg">
+        <rect width="900" height="170" fill="#F5F3EE"/>
+
+        <text x="16" y="18" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">VALID bipartite graph</text>
+        <circle cx="50" cy="55" r="15" fill="#B5451B"/>
+        <circle cx="50" cy="115" r="15" fill="#B5451B"/>
+        <circle cx="128" cy="40" r="15" fill="#F5B49A" stroke="#B5451B" stroke-width="1.5"/>
+        <circle cx="128" cy="85" r="15" fill="#F5B49A" stroke="#B5451B" stroke-width="1.5"/>
+        <circle cx="128" cy="130" r="15" fill="#F5B49A" stroke="#B5451B" stroke-width="1.5"/>
+        <line x1="64" y1="52" x2="113" y2="42" stroke="#B5451B" stroke-width="1.5"/>
+        <line x1="64" y1="58" x2="113" y2="82" stroke="#B5451B" stroke-width="1.5"/>
+        <line x1="64" y1="112" x2="113" y2="88" stroke="#B5451B" stroke-width="1.5"/>
+        <line x1="64" y1="118" x2="113" y2="128" stroke="#B5451B" stroke-width="1.5"/>
+        <text x="50" y="59" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#fff">0</text>
+        <text x="50" y="119" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#fff">2</text>
+        <text x="128" y="44" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#B5451B">1</text>
+        <text x="128" y="89" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#B5451B">3</text>
+        <text x="128" y="134" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#B5451B">4</text>
+        <text x="26" y="150" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">partition A</text>
+        <text x="102" y="150" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">partition B</text>
+        <text x="16" y="162" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#007A3D">All edges cross partitions → TRUE</text>
+
+        <line x1="186" y1="12" x2="186" y2="160" stroke="#E0E0E0" stroke-width="1.5"/>
+
+        <text x="202" y="18" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">INVALID graph: odd cycle</text>
+        <circle cx="262" cy="48" r="15" fill="#B5451B"/>
+        <circle cx="222" cy="112" r="15" fill="#F5B49A" stroke="#B5451B" stroke-width="1.5"/>
+        <circle cx="302" cy="112" r="15" fill="#B5451B"/>
+        <line x1="252" y1="60" x2="232" y2="99" stroke="#B5451B" stroke-width="1.5"/>
+        <line x1="272" y1="60" x2="292" y2="99" stroke="#B5451B" stroke-width="1.5"/>
+        <line x1="237" y1="112" x2="287" y2="112" stroke="#FF3B00" stroke-width="3"/>
+        <text x="262" y="52" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#fff">0</text>
+        <text x="222" y="116" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#B5451B">1</text>
+        <text x="302" y="116" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#fff">2</text>
+        <text x="262" y="138" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#FF3B00">0 and 2 must share a color,</text>
+        <text x="262" y="151" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#FF3B00">but edge (1,2) closes an odd cycle</text>
+
+        <line x1="362" y1="12" x2="362" y2="160" stroke="#E0E0E0" stroke-width="1.5"/>
+
+        <text x="378" y="18" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">BFS coloring workflow</text>
+        <rect x="378" y="28" width="502" height="122" rx="8" fill="white" stroke="#D8D4CC" stroke-width="1.5"/>
+        <text x="394" y="48" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">1. For each uncolored node, start BFS and assign color 0</text>
+        <text x="394" y="70" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#B5451B">2. When visiting neighbor v, set color[v] = 1 - color[u]</text>
+        <text x="394" y="92" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#B5451B">3. If an edge connects two nodes with the same color, return false</text>
+        <text x="394" y="114" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#888">4. Disconnected graph? Repeat for every unvisited component</text>
+        <rect x="394" y="124" width="18" height="10" rx="2" fill="#B5451B"/>
+        <text x="418" y="132" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">color 0</text>
+        <rect x="470" y="124" width="18" height="10" rx="2" fill="#F5B49A" stroke="#B5451B" stroke-width="1"/>
+        <text x="494" y="132" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">color 1</text>
+        <rect x="548" y="124" width="18" height="10" rx="2" fill="#FF3B00"/>
+        <text x="572" y="132" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">conflict edge</text>
+      </svg>
+    </div>
+
+    <div class="g3">
+      <div class="ic"><div class="ic-head"><div class="ic-lbl">definition</div><div class="ic-ttl">Split nodes into 2 sets, edges only cross sets</div></div><div class="ic-body">A graph is bipartite iff it has no odd cycle. That is exactly the same as saying it can be 2-colored.</div></div>
+      <div class="ic"><div class="ic-head"><div class="ic-lbl">when to use</div><div class="ic-ttl">Conflict graphs, rivalries, 2-group assignment</div></div><div class="ic-body">Use it for “can these be split into two compatible groups?” questions. Standard solution is BFS or DFS coloring.</div></div>
+      <div class="ic"><div class="ic-head"><div class="ic-lbl">union find variant</div><div class="ic-ttl">Group each node's neighbors together</div></div><div class="ic-body">For every node <code>u</code>, all of its neighbors must live in the opposite partition. If <code>find(u) == find(v)</code> for some edge, the graph is not bipartite.</div></div>
+    </div>
+  </div>
+
+  <hr class="hr"/>
+
+  <div class="sec" style="margin-bottom:0;">
+    <div class="eye">Quick Comparison</div>
+    <div class="stitle"><span class="snum">7+</span> Which Tool to Reach For</div>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <div class="compare-tag" style="color:var(--bfs)">Pattern</div>
+        <div class="compare-name" style="color:var(--bfs)">BFS</div>
+        <div class="compare-line"><strong>Guarantee</strong>Shortest path in an unweighted graph</div>
+        <div class="compare-line"><strong>Complexity</strong>O(V + E)</div>
+        <div class="compare-line"><strong>Core structure</strong>Queue</div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-tag" style="color:var(--dfs)">Pattern</div>
+        <div class="compare-name" style="color:var(--dfs)">DFS</div>
+        <div class="compare-line"><strong>Guarantee</strong>Complete exploration with recursion/backtracking</div>
+        <div class="compare-line"><strong>Complexity</strong>O(V + E)</div>
+        <div class="compare-line"><strong>Core structure</strong>Call stack or explicit stack</div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-tag" style="color:var(--topo)">Pattern</div>
+        <div class="compare-name" style="color:var(--topo)">Topo Sort</div>
+        <div class="compare-line"><strong>Guarantee</strong>Valid ordering for a DAG</div>
+        <div class="compare-line"><strong>Complexity</strong>O(V + E)</div>
+        <div class="compare-line"><strong>Core structure</strong>Indegree array + queue</div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-tag" style="color:var(--uf)">Pattern</div>
+        <div class="compare-name" style="color:var(--uf)">Union Find</div>
+        <div class="compare-line"><strong>Guarantee</strong>Fast component membership queries</div>
+        <div class="compare-line"><strong>Complexity</strong>Amortized O(α(N))</div>
+        <div class="compare-line"><strong>Core structure</strong>Parent array</div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-tag" style="color:var(--multi)">Pattern</div>
+        <div class="compare-name" style="color:var(--multi)">Multi-Source BFS</div>
+        <div class="compare-line"><strong>Guarantee</strong>Nearest source distance</div>
+        <div class="compare-line"><strong>Complexity</strong>O(V + E)</div>
+        <div class="compare-line"><strong>Core structure</strong>Queue pre-seeded with all sources</div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-tag" style="color:var(--dijk)">Pattern</div>
+        <div class="compare-name" style="color:var(--dijk)">Dijkstra</div>
+        <div class="compare-line"><strong>Guarantee</strong>Shortest path with non-negative weights</div>
+        <div class="compare-line"><strong>Complexity</strong>O((V + E) log V)</div>
+        <div class="compare-line"><strong>Core structure</strong>Min-heap</div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-tag" style="color:var(--bip)">Pattern</div>
+        <div class="compare-name" style="color:var(--bip)">Bipartite</div>
+        <div class="compare-line"><strong>Guarantee</strong>2-colorability / no odd cycle</div>
+        <div class="compare-line"><strong>Complexity</strong>O(V + E)</div>
+        <div class="compare-line"><strong>Core structure</strong>BFS/DFS coloring or Union Find</div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="sc"><div class="sb">7</div><div class="ss">CORE PATTERNS<br/>covering most interview graph questions</div></div>
+      <div class="sc"><div class="sb">V+E</div><div class="ss">BASELINE COST<br/>for plain traversals and DAG passes</div></div>
+      <div class="sc"><div class="sb">PQ</div><div class="ss">WEIGHTED PATHS<br/>need a min-heap, not a FIFO queue</div></div>
+      <div class="sc"><div class="sb">2</div><div class="ss">COLOR GROUPS<br/>required for bipartite graphs</div></div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="ft">
+  <div>Graph Algorithm Patterns — Reference Guide</div>
+  <div><span>BFS</span> · <span>DFS</span> · <span>Topo Sort</span> · <span>Union Find</span> · <span>Multi-Source BFS</span> · <span>Dijkstra</span> · <span>Bipartite</span></div>
+  <a href="problems.html">30 Problems →</a>
+</footer>
+
+</body>
+</html>
