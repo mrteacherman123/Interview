@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trees — 27 Problems</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+    :root{
+      --bg:#F5F3EE;
+      --ink:#0D0D0D;
+      --muted:#888;
+      --border:#D8D4CC;
+      --panel:#FFFFFF;
+      --tag-bg:#EDEAE4;
+      --c1:#1A1AFF;
+      --c2:#FF3B00;
+      --c3:#007A3D;
+      --c4:#8B00FF;
+      --c5:#C8900A;
+    }
+
+    body{
+      background:var(--bg);
+      color:var(--ink);
+      font-family:'Epilogue',sans-serif;
+      min-height:100vh;
+    }
+
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.025;
+      z-index:9999;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size:220px 220px;
+    }
+
+    .page-header{
+      background:#0D0D0D;
+      color:#fff;
+      padding:56px 48px 48px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .page-header::before{
+      content:"";
+      position:absolute;
+      right:-64px;
+      top:-64px;
+      width:320px;
+      height:320px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(255,255,255,.06) 0%, transparent 70%);
+    }
+
+    .header-eyebrow{
+      font-family:'IBM Plex Mono',monospace;
+      font-size:11px;
+      letter-spacing:3px;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.42);
+      margin-bottom:20px;
+    }
+
+    .page-header h1{
+      font-size:clamp(34px,5vw,64px);
+      font-weight:600;
+      line-height:1.03;
+      letter-spacing:-1.8px;
+      margin-bottom:22px;
+      max-width:900px;
+    }
+
+    .page-header h1 em{
+      font-style:normal;
+      opacity:.35;
+      font-weight:400;
+    }
+
+    .header-meta{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .meta-pill{
+      font-family:'IBM Plex Mono',monospace;
+      font-size:11px;
+      letter-spacing:.8px;
+      padding:7px 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      color:rgba(255,255,255,.66);
+    }
+
+    .grid-wrapper{
+      padding:48px 40px 80px;
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:20px;
+    }
+
+    .card{
+      --accent:var(--c1);
+      background:var(--panel);
+      border:1.5px solid #D8D4CC;
+      border-radius:16px;
+      overflow:hidden;
+      transition:transform .18s ease, box-shadow .18s ease;
+      display:flex;
+      flex-direction:column;
+      min-width:0;
+    }
+
+    .card:hover{
+      transform:translateY(-4px);
+      box-shadow:0 18px 42px rgba(13,13,13,.10);
+    }
+
+    .card-stripe{
+      height:4px;
+      background:var(--accent);
+    }
+
+    .card-head{
+      padding:20px 22px 0;
+    }
+
+    .card-num{
+      font-family:'IBM Plex Mono',monospace;
+      font-size:10px;
+      letter-spacing:2px;
+      color:var(--muted);
+      margin-bottom:8px;
+      text-transform:uppercase;
+    }
+
+    .card-title{
+      font-size:16px;
+      font-weight:600;
+      letter-spacing:-.3px;
+      line-height:1.25;
+      margin-bottom:10px;
+    }
+
+    .approaches{
+      padding:0 22px 14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+
+    .ap-chip{
+      font-family:'IBM Plex Mono',monospace;
+      font-size:9px;
+      font-weight:600;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      border-radius:999px;
+      padding:5px 9px;
+      color:#fff;
+      background:#444;
+    }
+
+    .ap-chip.primary{
+      background:var(--accent);
+    }
+
+    .problem-desc{
+      padding:0 22px 14px;
+      font-size:12.5px;
+      line-height:1.56;
+      color:var(--muted);
+      border-bottom:1px dashed var(--border);
+    }
+
+    .card-viz{
+      padding:0 16px 14px;
+      border-bottom:1px dashed var(--border);
+    }
+
+    .card-viz svg{
+      width:100%;
+      height:95px;
+      display:block;
+      border-radius:8px;
+    }
+
+    .card-body{
+      padding:16px 22px 0;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      flex:1;
+    }
+
+    .insight-block{
+      background:linear-gradient(180deg, rgba(0,0,0,.015), rgba(0,0,0,0)), var(--tag-bg);
+      border-radius:12px;
+      padding:12px 14px;
+      border:1px solid rgba(0,0,0,.04);
+      box-shadow:inset 3px 0 0 var(--accent);
+    }
+
+    .block-label{
+      font-family:'IBM Plex Mono',monospace;
+      font-size:9px;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+
+    .insight-text{
+      font-size:13px;
+      line-height:1.56;
+      color:#333;
+    }
+
+    .mini-code{
+      background:#0F1117;
+      border-radius:12px;
+      border:1px solid #20242d;
+      overflow:hidden;
+    }
+
+    .titlebar{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding:10px 12px;
+      background:#141923;
+      border-bottom:1px solid #212733;
+    }
+
+    .dot{width:10px;height:10px;border-radius:50%}
+    .dot.red{background:#FF5F57}
+    .dot.yellow{background:#FEBC2E}
+    .dot.green{background:#28C840}
+
+    .code-label{
+      margin-left:auto;
+      font-family:'IBM Plex Mono',monospace;
+      font-size:9px;
+      letter-spacing:1.6px;
+      text-transform:uppercase;
+      color:#5f6b7c;
+    }
+
+    .mini-code pre{
+      padding:14px 16px 15px;
+      overflow:auto;
+      color:#C9D1D9;
+      font-family:'IBM Plex Mono',monospace;
+      font-size:11.5px;
+      line-height:1.75;
+      white-space:pre;
+    }
+
+    .kw{color:#FF79C6}
+    .fn{color:#50FA7B}
+    .nm{color:#BD93F9}
+    .op{color:#FF6B35}
+    .cm{color:#6272A4;font-style:italic}
+    .str2{color:#F1FA8C}
+
+    .gotcha{
+      border-left:3px solid #FF3B00;
+      background:rgba(255,59,0,.07);
+      border-radius:0 10px 10px 0;
+      padding:11px 12px;
+    }
+
+    .gotcha-title{
+      font-family:'IBM Plex Mono',monospace;
+      font-size:9px;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      color:#9b3a23;
+      margin-bottom:6px;
+    }
+
+    .gotcha p{
+      font-size:12.5px;
+      line-height:1.55;
+      color:#5e362d;
+    }
+
+    .gotcha code,
+    .insight-text code{
+      font-family:'IBM Plex Mono',monospace;
+      font-size:11px;
+      background:rgba(255,59,0,.12);
+      color:#8c2f18;
+      padding:1px 5px;
+      border-radius:5px;
+    }
+
+    .complexity-row{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .cx-badge{
+      font-family:'IBM Plex Mono',monospace;
+      font-size:10px;
+      letter-spacing:.8px;
+      padding:7px 10px;
+      border-radius:999px;
+      background:var(--tag-bg);
+      color:#444;
+    }
+
+    .pattern-row{
+      padding:0 22px 16px;
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+
+    .pattern-tag{
+      font-family:'IBM Plex Mono',monospace;
+      font-size:9.5px;
+      letter-spacing:.4px;
+      color:#666;
+      background:var(--tag-bg);
+      padding:6px 8px;
+      border-radius:999px;
+    }
+
+    .page-footer{
+      background:#0D0D0D;
+      color:rgba(255,255,255,.44);
+      font-family:'IBM Plex Mono',monospace;
+      font-size:11px;
+      letter-spacing:.8px;
+      padding:20px 40px 24px;
+    }
+
+    svg text{
+      font-family:'IBM Plex Mono',monospace;
+    }
+
+    @media (max-width: 1080px){
+      .grid-wrapper{grid-template-columns:repeat(2,1fr)}
+    }
+
+    @media (max-width: 720px){
+      .page-header{padding:42px 22px 34px}
+      .grid-wrapper{grid-template-columns:1fr;padding:30px 18px 56px}
+      .page-footer{padding:18px}
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <div class="header-eyebrow">[Trees] — Problem Reference</div>
+    <h1><span id="problem-count">27</span> Problems.<br /><em>Tree Traversal &amp; BST Invariants.</em></h1>
+    <div class="header-meta">
+      <span class="meta-pill">DFS / BFS</span>
+      <span class="meta-pill">BST Invariants</span>
+      <span class="meta-pill">Tree Reconstruction</span>
+      <span class="meta-pill">Level Order Patterns</span>
+      <span class="meta-pill">O(h) Stack Space</span>
+      <span class="meta-pill">Java / Python Ready</span>
+    </div>
+  </header>
+
+  <main class="grid-wrapper" id="grid"></main>
+
+  <footer class="page-footer">leetcode::Trees · quick revision deck · tags: mvp</footer>
+
+  <script>
+    const cards = [
+      {
+        title: "Inorder Successor in BST",
+        category: "BST",
+        primary: "BST Walk",
+        secondary: ["Inorder DFS"],
+        desc: "Return the next node in inorder order for a given BST node p. In a BST, that means the smallest value strictly greater than p.val.",
+        insight: "When you move left from a node greater than <code>p.val</code>, that node becomes the best successor candidate seen so far.",
+        viz: "successor",
+        code: `<span class="kw">TreeNode</span> succ <span class="op">=</span> <span class="kw">null</span>;\n<span class="kw">while</span> (root <span class="op">!=</span> <span class="kw">null</span>) {\n  <span class="kw">if</span> (p.val <span class="op">&gt;=</span> root.val) root <span class="op">=</span> root.right;\n  <span class="kw">else</span> {\n    succ <span class="op">=</span> root;\n    root <span class="op">=</span> root.left;\n  }\n}\n<span class="kw">return</span> succ;`,
+        gotcha: "Use <code>p.val &gt;= root.val</code> for the right move. If you only use <code>&gt;</code>, the exact node <code>p</code> can be incorrectly kept as a candidate.",
+        time: "O(h)",
+        space: "O(1)",
+        tags: ["successor", "ancestor candidate", "BST property"]
+      },
+      {
+        title: "Binary Tree Traversals",
+        category: "TRAVERSAL",
+        primary: "Stack / Queue",
+        secondary: ["Recursive DFS", "Level Order"],
+        desc: "Know inorder, preorder, postorder, and level order cold. The real difference is when you record the node and whether you use a stack or queue.",
+        insight: "Traversal order is just timing: record before children, between children, after children, or once per BFS layer.",
+        viz: "traversals",
+        code: `<span class="kw">while</span> (root <span class="op">!=</span> <span class="kw">null</span> <span class="op">||</span> !stack.isEmpty()) {\n  <span class="kw">while</span> (root <span class="op">!=</span> <span class="kw">null</span>) {\n    stack.push(root);\n    root <span class="op">=</span> root.left;\n  }\n  root <span class="op">=</span> stack.pop();\n  ans.add(root.val); <span class="cm">// inorder visit</span>\n  root <span class="op">=</span> root.right;\n}`,
+        gotcha: "For iterative inorder, the outer loop must be <code>root != null || !stack.isEmpty()</code>. Using only one side drops either the right chain or the final stack drain.",
+        time: "O(n)",
+        space: "O(h)",
+        tags: ["inorder", "preorder", "postorder", "level order"]
+      },
+      {
+        title: "Binary Tree Maximum Path Sum",
+        category: "TREE DP",
+        primary: "Postorder DP",
+        secondary: ["DFS"],
+        desc: "Find the maximum sum of any path in the tree. The best path can start and end anywhere, but each edge can only be used once.",
+        insight: "Each node contributes one downward branch upward, but updates the global answer with a split path using both children.",
+        viz: "maxPath",
+        code: `<span class="kw">int</span> left <span class="op">=</span> Math.max(<span class="nm">0</span>, <span class="fn">dfs</span>(node.left));\n<span class="kw">int</span> right <span class="op">=</span> Math.max(<span class="nm">0</span>, <span class="fn">dfs</span>(node.right));\nbest <span class="op">=</span> Math.max(best, left <span class="op">+</span> right <span class="op">+</span> node.val);\n<span class="kw">return</span> Math.max(left, right) <span class="op">+</span> node.val;\n\n<span class="cm">// best uses split path</span>\n<span class="cm">// return uses single branch</span>`,
+        gotcha: "Clamp child gains with <code>Math.max(0, ...)</code>. Without that, a negative subtree breaks cases like <code>[2,-1,-2]</code>.",
+        time: "O(n)",
+        space: "O(h)",
+        tags: ["postorder", "global answer", "path gain"]
+      },
+      {
+        title: "Subtree With Maximum Sum",
+        category: "TREE DP",
+        primary: "Postorder Sum",
+        secondary: ["DFS"],
+        desc: "Return the maximum subtree sum, where a subtree includes a node and all its descendants. Every node defines one candidate subtree.",
+        insight: "Unlike path sum, subtree sum must include both children entirely, so each node has exactly one subtree total: <code>L + R + val</code>.",
+        viz: "subtreeSum",
+        code: `<span class="kw">int</span> left <span class="op">=</span> <span class="fn">dfs</span>(node.left);\n<span class="kw">int</span> right <span class="op">=</span> <span class="fn">dfs</span>(node.right);\n<span class="kw">int</span> sum <span class="op">=</span> left <span class="op">+</span> right <span class="op">+</span> node.val;\nres <span class="op">=</span> Math.max(res, sum);\n<span class="kw">return</span> sum;\n\n<span class="cm">// every node anchors one subtree</span>`,
+        gotcha: "Do not prune negatives to <code>0</code> here. That rule belongs to path sum, not subtree sum, because a subtree must include all descendants under the node.",
+        time: "O(n)",
+        space: "O(h)",
+        tags: ["subtree sum", "postorder accumulation", "global max"]
+      },
+      {
+        title: "Same Tree",
+        category: "DFS",
+        primary: "Recursive Compare",
+        secondary: ["Iterative Pair Stack"],
+        desc: "Check whether two binary trees are structurally identical and contain the same values at matching positions.",
+        insight: "Equality requires matching null structure first, then matching node values, then matching both corresponding subtrees.",
+        viz: "sameTree",
+        code: `<span class="kw">if</span> (p <span class="op">==</span> <span class="kw">null</span> <span class="op">&amp;&amp;</span> q <span class="op">==</span> <span class="kw">null</span>) <span class="kw">return</span> <span class="kw">true</span>;\n<span class="kw">if</span> (p <span class="op">==</span> <span class="kw">null</span> <span class="op">||</span> q <span class="op">==</span> <span class="kw">null</span>) <span class="kw">return</span> <span class="kw">false</span>;\n<span class="kw">if</span> (p.val <span class="op">!=</span> q.val) <span class="kw">return</span> <span class="kw">false</span>;\n<span class="kw">return</span> <span class="fn">same</span>(p.left, q.left)\n    <span class="op">&amp;&amp;</span> <span class="fn">same</span>(p.right, q.right);`,
+        gotcha: "Check null mismatch before <code>p.val != q.val</code>. Accessing <code>p.val</code> early explodes on shapes like <code>[1,2]</code> vs <code>[1,null,2]</code>.",
+        time: "O(n)",
+        space: "O(h)",
+        tags: ["tree equality", "structural match", "recursive base case"]
+      },
+      {
+        title: "Maximum Depth of Binary Tree",
+        category: "DFS",
+        primary: "Depth Recursion",
+        secondary: ["Iterative Stack", "BFS Levels"],
+        desc: "Compute the number of nodes on the longest root-to-leaf path. This is the canonical warm-up for tree recursion.",
+        insight: "Depth is a pure bottom-up quantity: the current depth is <code>1 + max(leftDepth, rightDepth)</code>.",
+        viz: "maxDepth",
+        code: `<span class="kw">if</span> (root <span class="op">==</span> <span class="kw">null</span>) <span class="kw">return</span> <span class="nm">0</span>;\n<span class="kw">int</span> left <span class="op">=</span> <span class="fn">maxDepth</span>(root.left);\n<span class="kw">int</span> right <span class="op">=</span> <span class="fn">maxDepth</span>(root.right);\n<span class="kw">return</span> Math.max(left, right) <span class="op">+</span> <span class="nm">1</span>;\n\n<span class="cm">// count nodes, not edges</span>`,
+        gotcha: "The empty tree returns <code>0</code>, so a single node returns <code>1</code>. Mixing node-count and edge-count definitions causes off-by-one answers.",
+        time: "O(n)",
+        space: "O(h)",
+        tags: ["tree height", "bottom-up recursion", "depth"]
+      },
+      {
+        title: "Invert Binary Tree",
+        category: "DFS",
+        primary: "Swap Children",
+        secondary: ["BFS Queue"],
+        desc: "Mirror the tree by swapping every node's left and right child. The operation is local and repeats independently at each node.",
+        insight: "The whole problem is just a recursive local swap; there is no BST or ordering logic to preserve.",
+        viz: "invert",
+        code: `<span class="kw">if</span> (root <span class="op">==</span> <span class="kw">null</span>) <span class="kw">return</span> <span class="kw">null</span>;\nTreeNode left <span class="op">=</span> <span class="fn">invertTree</span>(root.left);\nTreeNode right <span class="op">=</span> <span class="fn">invertTree</span>(root.right);\nroot.left <span class="op">=</span> right;\nroot.right <span class="op">=</span> left;\n<span class="kw">return</span> root;`,
+        gotcha: "Do not overwrite one child before saving the other. Writing <code>root.left = root.right</code> first loses the original left subtree.",
+        time: "O(n)",
+        space: "O(h)",
+        tags: ["mirror tree", "swap children", "recursive transform"]
+      },
+      {
+        title: "Construct Tree from Preorder + Inorder",
+        category: "BUILD",
+        primary: "Index Map",
+        secondary: ["Recursive Slices"],
+        desc: "Rebuild the tree when preorder gives roots in sequence and inorder tells how each root splits the left and right subtrees.",
+        insight: "Preorder gives the next root immediately; inorder tells exactly how many nodes belong to its left subtree.",
+        viz: "preInBuild",
+        code: `<span class="kw">int</span> val <span class="op">=</span> preorder[preIdx<span class="op">++</span>];\nTreeNode root <span class="op">=</span> <span class="kw">new</span> TreeNode(val);\n<span class="kw">int</span> mid <span class="op">=</span> inPos.get(val);\nroot.left <span class="op">=</span> <span class="fn">build</span>(left, mid);\nroot.right <span class="op">=</span> <span class="fn">build</span>(mid <span class="op">+</span> <span class="nm">1</span>, right);\n<span class="kw">return</span> root;`,
+        gotcha: "Use half-open ranges or be extremely consistent with inclusive bounds. Off-by-one errors usually show up in the right subtree call.",
+        time: "O(n)",
+        space: "O(n)",
+        tags: ["preorder", "inorder split", "hash map"]
+      },
+      {
+        title: "Construct Tree from Inorder + Postorder",
+        category: "BUILD",
+        primary: "Index Map",
+        secondary: ["Recursive Bounds"],
+        desc: "Rebuild the tree when postorder gives the root at the end and inorder still determines the left/right partition.",
+        insight: "Because postorder reads left, right, root, when consuming from the end you must build the right subtree before the left.",
+        viz: "inPostBuild",
+        code: `<span class="kw">int</span> val <span class="op">=</span> postorder[postIdx<span class="op">--</span>];\nTreeNode root <span class="op">=</span> <span class="kw">new</span> TreeNode(val);\n<span class="kw">int</span> mid <span class="op">=</span> inPos.get(val);\nroot.right <span class="op">=</span> <span class="fn">build</span>(mid <span class="op">+</span> <span class="nm">1</span>, right);\nroot.left <span class="op">=</span> <span class="fn">build</span>(left, mid <span class="op">-</span> <span class="nm">1</span>);\n<span class="kw">return</span> root;`,
+        gotcha: "The recursive order is the trap: build <code>right</code> first. If you build left first, you consume the wrong root from postorder.",
+        time: "O(n)",
+        space: "O(n)",
+        tags: ["postorder", "inorder split", "right-first recursion"]
+      },
+      {
+        title: "Serialize and Deserialize Binary Tree",
+        category: "DESIGN",
+        primary: "Preorder + Nulls",
+        secondary: ["BST Bounds Codec"],
+        desc: "Turn a binary tree into a string and back. The generic tree-safe pattern is preorder traversal with explicit null markers.",
+        insight: "Null sentinels preserve shape; without them, different trees can serialize to the same value sequence.",
+        viz: "serialize",
+        code: `<span class="kw">if</span> (node <span class="op">==</span> <span class="kw">null</span>) {\n  out.append(<span class="str2">"null,"</span>);\n  <span class="kw">return</span>;\n}\nout.append(node.val).append(<span class="str2">","</span>);\n<span class="fn">ser</span>(node.left, out);\n<span class="fn">ser</span>(node.right, out);`,
+        gotcha: "If you omit <code>null</code> markers, trees like <code>1,left=2</code> and <code>1,right=2</code> collapse to the same preorder list.",
+        time: "O(n)",
+        space: "O(n)",
+        tags: ["codec", "preorder", "null sentinel"]
+      },
+      {
+        title: "Validate Binary Search Tree",
+        category: "BST",
+        primary: "Min / Max Bounds",
+        secondary: ["Iterative Inorder"],
+        desc: "Check whether every node respects the strict BST invariant, not just relative to its parent but relative to the full ancestor range.",
+        insight: "Each recursive call carries the only legal interval for that subtree, and equality is invalid on both sides.",
+        viz: "validateBST",
+        code: `<span class="kw">boolean</span> <span class="fn">ok</span>(node, low, high) {\n  <span class="kw">if</span> (node <span class="op">==</span> <span class="kw">null</span>) <span class="kw">return</span> <span class="kw">true</span>;\n  <span class="kw">if</span> (node.val <span class="op">&lt;=</span> low <span class="op">||</span> node.val <span class="op">&gt;=</span> high) <span class="kw">return</span> <span class="kw">false</span>;\n  <span class="kw">return</span> <span class="fn">ok</span>(node.left, low, node.val)\n      <span class="op">&amp;&amp;</span> <span class="fn">ok</span>(node.right, node.val, high);\n}`,
+        gotcha: "Use <code>long</code> bounds and strict inequality. <code>Integer.MIN_VALUE</code> and duplicate values both break naive integer checks.",
+        time: "O(n)",
+        space: "O(h)",
+        tags: ["ancestor bounds", "strict inequality", "inorder sorted"]
+      },
+      {
+        title: "Vertical Order Traversal",
+        category: "BFS / SORT",
+        primary: "DFS + Sort",
+        secondary: ["Column Heaps"],
+        desc: "Group nodes by column from left to right, breaking ties by row and then by value when nodes share the same position.",
+        insight: "The traversal itself is easy; the real problem is sorting by the tuple <code>(col, row, val)</code> before grouping.",
+        viz: "vertical",
+        code: `<span class="fn">dfs</span>(node, row, col) {\n  entries.add([col, row, node.val]);\n  <span class="fn">dfs</span>(node.left, row <span class="op">+</span> <span class="nm">1</span>, col <span class="op">-</span> <span class="nm">1</span>);\n  <span class="fn">dfs</span>(node.right, row <span class="op">+</span> <span class="nm">1</span>, col <span class="op">+</span> <span class="nm">1</span>);\n}\nentries.sort((a,b) <span class="op">-&gt;</span> byColRowVal(a, b));`,
+        gotcha: "Sorting only by column is incomplete. Nodes sharing the same <code>col</code> must still be ordered by <code>row</code>, then by <code>val</code>.",
+        time: "O(n log n)",
+        space: "O(n)",
+        tags: ["column index", "tuple sort", "tree coordinates"]
+      },
+      {
+        title: "Kth Smallest in BST",
+        category: "BST",
+        primary: "Iterative Inorder",
+        secondary: ["Recursive Count"],
+        desc: "Find the kth smallest element in a BST. Inorder traversal of a BST visits nodes in sorted ascending order.",
+        insight: "You do not need the whole sorted list; stop at the kth inorder pop and return immediately.",
+        viz: "kthSmallest",
+        code: `<span class="kw">while</span> (root <span class="op">!=</span> <span class="kw">null</span> <span class="op">||</span> !stack.isEmpty()) {\n  <span class="kw">while</span> (root <span class="op">!=</span> <span class="kw">null</span>) {\n    stack.push(root);\n    root <span class="op">=</span> root.left;\n  }\n  root <span class="op">=</span> stack.pop();\n  <span class="kw">if</span> (--k <span class="op">==</span> <span class="nm">0</span>) <span class="kw">return</span> root.val;\n  root <span class="op">=</span> root.right;\n}`,
+        gotcha: "Decrement <code>k</code> when visiting the node, not when pushing it. Inorder visit time is what defines sorted order.",
+        time: "O(h + k)",
+        space: "O(h)",
+        tags: ["inorder", "early exit", "sorted BST"]
+      },
+      {
+        title: "Populating Next Right Pointers I",
+        category: "POINTERS",
+        primary: "Level Linking",
+        secondary: ["Perfect Tree O(1)"],
+        desc: "Connect each node to its next right neighbor in a perfect binary tree. The perfect-tree structure lets you wire links without a queue.",
+        insight: "In a perfect tree, every parent gives you two local edges: <code>left -> right</code> and <code>right -> parent.next.left</code>.",
+        viz: "connectPerfect",
+        code: `<span class="kw">while</span> (leftmost.left <span class="op">!=</span> <span class="kw">null</span>) {\n  Node head <span class="op">=</span> leftmost;\n  <span class="kw">while</span> (head <span class="op">!=</span> <span class="kw">null</span>) {\n    head.left.next <span class="op">=</span> head.right;\n    <span class="kw">if</span> (head.next <span class="op">!=</span> <span class="kw">null</span>)\n      head.right.next <span class="op">=</span> head.next.left;\n    head <span class="op">=</span> head.next;\n  }\n  leftmost <span class="op">=</span> leftmost.left;\n}`,
+        gotcha: "The <code>head.right.next = head.next.left</code> link only works because the tree is perfect. Reusing it on arbitrary trees is wrong.",
+        time: "O(n)",
+        space: "O(1)",
+        tags: ["perfect binary tree", "next pointer", "constant space"]
+      },
+      {
+        title: "Populating Next Right Pointers II",
+        category: "POINTERS",
+        primary: "Dummy / Prev Stitch",
+        secondary: ["Queue BFS"],
+        desc: "Connect next pointers in a general binary tree. The clean O(1)-extra-space pattern walks the current level using existing next links while building the next level.",
+        insight: "Treat each level like a linked list and use <code>prev</code> to stitch together the children encountered from left to right.",
+        viz: "connectAny",
+        code: `leftmost <span class="op">=</span> root;\n<span class="kw">while</span> (leftmost <span class="op">!=</span> <span class="kw">null</span>) {\n  prev <span class="op">=</span> <span class="kw">null</span>; curr <span class="op">=</span> leftmost; leftmost <span class="op">=</span> <span class="kw">null</span>;\n  <span class="kw">while</span> (curr <span class="op">!=</span> <span class="kw">null</span>) {\n    <span class="fn">processChild</span>(curr.left);\n    <span class="fn">processChild</span>(curr.right);\n    curr <span class="op">=</span> curr.next;\n  }\n}`,
+        gotcha: "Reset both <code>prev</code> and <code>leftmost</code> at the start of each level. Leaving stale pointers wires children across different levels.",
+        time: "O(n)",
+        space: "O(1)",
+        tags: ["next pointer ii", "linked level", "prev pointer"]
+      },
+      {
+        title: "Binary Tree Zigzag Level Order",
+        category: "BFS",
+        primary: "Level Order",
+        secondary: ["DFS by Level"],
+        desc: "Traverse the tree level by level, alternating direction on each level: left-to-right, then right-to-left, then back again.",
+        insight: "The queue order never changes; only where you place the value inside the current level list changes.",
+        viz: "zigzag",
+        code: `<span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="nm">0</span>; i <span class="op">&lt;</span> size; i<span class="op">++</span>) {\n  TreeNode node <span class="op">=</span> q.poll();\n  <span class="kw">if</span> (leftToRight) level.addLast(node.val);\n  <span class="kw">else</span> level.addFirst(node.val);\n  <span class="kw">if</span> (node.left <span class="op">!=</span> <span class="kw">null</span>) q.add(node.left);\n  <span class="kw">if</span> (node.right <span class="op">!=</span> <span class="kw">null</span>) q.add(node.right);\n}\nleftToRight <span class="op">=</span> !leftToRight;`,
+        gotcha: "Do not reverse the queue or swap child enqueue order. The alternating view belongs in the output list, not in the traversal frontier.",
+        time: "O(n)",
+        space: "O(w)",
+        tags: ["level order", "deque", "alternating direction"]
+      },
+      {
+        title: "Lowest Common Ancestor in BST",
+        category: "BST",
+        primary: "Split Point",
+        secondary: ["Iterative Walk"],
+        desc: "Find the lowest node where two targets split in a BST. BST ordering lets you decide direction using only node values.",
+        insight: "The LCA is exactly the first node where <code>p</code> and <code>q</code> stop lying on the same side.",
+        viz: "lcaBST",
+        code: `<span class="kw">if</span> (p.val <span class="op">&lt;</span> root.val <span class="op">&amp;&amp;</span> q.val <span class="op">&lt;</span> root.val)\n  <span class="kw">return</span> <span class="fn">lca</span>(root.left, p, q);\n<span class="kw">if</span> (p.val <span class="op">&gt;</span> root.val <span class="op">&amp;&amp;</span> q.val <span class="op">&gt;</span> root.val)\n  <span class="kw">return</span> <span class="fn">lca</span>(root.right, p, q);\n<span class="kw">return</span> root; <span class="cm">// split point</span>`,
+        gotcha: "If one node equals the current root, the root is the answer. Do not keep descending after the split or equality case.",
+        time: "O(h)",
+        space: "O(1)",
+        tags: ["split point", "BST ordering", "ancestor"]
+      },
+      {
+        title: "Lowest Common Ancestor in Binary Tree",
+        category: "DFS",
+        primary: "Postorder Flags",
+        secondary: ["Parent Map"],
+        desc: "Find the lowest node that has both targets in its subtree in a general binary tree. Without BST ordering, you must explore both sides.",
+        insight: "A node is the LCA once any two of these are true there: target in left subtree, target in right subtree, node itself is a target.",
+        viz: "lcaBT",
+        code: `<span class="kw">int</span> left <span class="op">=</span> <span class="fn">dfs</span>(root.left) ? <span class="nm">1</span> : <span class="nm">0</span>;\n<span class="kw">int</span> right <span class="op">=</span> <span class="fn">dfs</span>(root.right) ? <span class="nm">1</span> : <span class="nm">0</span>;\n<span class="kw">int</span> mid <span class="op">=</span> (root <span class="op">==</span> p <span class="op">||</span> root <span class="op">==</span> q) ? <span class="nm">1</span> : <span class="nm">0</span>;\n<span class="kw">if</span> (left <span class="op">+</span> right <span class="op">+</span> mid <span class="op">&gt;=</span> <span class="nm">2</span>) ans <span class="op">=</span> root;\n<span class="kw">return</span> left <span class="op">+</span> right <span class="op">+</span> mid <span class="op">&gt;</span> <span class="nm">0</span>;`,
+        gotcha: "Compare nodes by reference, not by value. Duplicate values are allowed in a general binary tree even if many interview examples omit them.",
+        time: "O(n)",
+        space: "O(h)",
+        tags: ["postorder", "three flags", "general tree"]
+      },
+      {
+        title: "BST Iterator",
+        category: "DESIGN",
+        primary: "Left Spine Stack",
+        secondary: ["Flattened Array"],
+        desc: "Implement an iterator that returns BST values in ascending order. The space-efficient version stores only the active left spine.",
+        insight: "The stack always holds the next inorder frontier, so <code>next()</code> is just pop, then push the left spine of the right child.",
+        viz: "iterator",
+        code: `<span class="kw">int</span> <span class="fn">next</span>() {\n  TreeNode node <span class="op">=</span> stack.pop();\n  <span class="kw">if</span> (node.right <span class="op">!=</span> <span class="kw">null</span>)\n    <span class="fn">pushLeft</span>(node.right);\n  <span class="kw">return</span> node.val;\n}\n\n<span class="kw">boolean</span> <span class="fn">hasNext</span>() { <span class="kw">return</span> !stack.isEmpty(); }`,
+        gotcha: "After popping a node, push the entire left chain from <code>node.right</code>, not just <code>node.right</code> itself.",
+        time: "O(1) amortized",
+        space: "O(h)",
+        tags: ["iterator", "inorder frontier", "amortized"]
+      },
+      {
+        title: "Binary Tree Right Side View",
+        category: "BFS",
+        primary: "Level Last Node",
+        secondary: ["Right-first DFS"],
+        desc: "Return the nodes visible from the right side, one per depth. Each level contributes its rightmost visible node.",
+        insight: "In BFS the answer is the last node of each level; in DFS it is the first node reached at each depth when exploring right first.",
+        viz: "rightView",
+        code: `<span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="nm">0</span>; i <span class="op">&lt;</span> size; i<span class="op">++</span>) {\n  TreeNode node <span class="op">=</span> q.poll();\n  <span class="kw">if</span> (i <span class="op">==</span> size <span class="op">-</span> <span class="nm">1</span>) ans.add(node.val);\n  <span class="kw">if</span> (node.left <span class="op">!=</span> <span class="kw">null</span>) q.add(node.left);\n  <span class="kw">if</span> (node.right <span class="op">!=</span> <span class="kw">null</span>) q.add(node.right);\n}`,
+        gotcha: "The visible node is the last one popped for a level with standard left-to-right enqueue order. If you change enqueue order, re-check the condition.",
+        time: "O(n)",
+        space: "O(w)",
+        tags: ["right side view", "level boundary", "right-first dfs"]
+      },
+      {
+        title: "Largest BST Subtree",
+        category: "TREE DP",
+        primary: "Postorder State",
+        secondary: ["Min / Max Summary"],
+        desc: "Find the size of the largest subtree that is itself a valid BST. Each recursive call returns enough information to validate the parent subtree.",
+        insight: "A subtree is a BST iff <code>left.max &lt; node.val &lt; right.min</code>; otherwise return an invalid range that poisons ancestors.",
+        viz: "largestBST",
+        code: `<span class="kw">if</span> (node.val <span class="op">&gt;</span> left.max <span class="op">&amp;&amp;</span> node.val <span class="op">&lt;</span> right.min)\n  <span class="kw">return</span> [Math.min(left.min, node.val),\n          Math.max(right.max, node.val),\n          left.size <span class="op">+</span> right.size <span class="op">+</span> <span class="nm">1</span>];\n<span class="kw">return</span> [Integer.MIN_VALUE, Integer.MAX_VALUE,\n        Math.max(left.size, right.size)];`,
+        gotcha: "The invalid case must return a reversed min/max range so ancestors can never treat it as a valid BST by accident.",
+        time: "O(n)",
+        space: "O(h)",
+        tags: ["largest BST subtree", "state tuple", "postorder validate"]
+      },
+      {
+        title: "Range Sum of BST",
+        category: "BST",
+        primary: "Pruned DFS",
+        secondary: ["Iterative Stack"],
+        desc: "Sum all BST node values within an inclusive range [low, high]. The BST property lets you skip entire subtrees outside the range.",
+        insight: "If <code>node.val &lt; low</code> you only need the right subtree; if <code>node.val &gt; high</code> you only need the left subtree.",
+        viz: "rangeSum",
+        code: `<span class="kw">if</span> (node <span class="op">==</span> <span class="kw">null</span>) <span class="kw">return</span>;\n<span class="kw">if</span> (node.val <span class="op">&gt;=</span> low <span class="op">&amp;&amp;</span> node.val <span class="op">&lt;=</span> high) sum <span class="op">+=</span> node.val;\n<span class="kw">if</span> (node.val <span class="op">&gt;</span> low) <span class="fn">dfs</span>(node.left);\n<span class="kw">if</span> (node.val <span class="op">&lt;</span> high) <span class="fn">dfs</span>(node.right);\n\n<span class="cm">// prune impossible side</span>`,
+        gotcha: "Use strict pruning checks on the branch direction. Writing both recursive calls unconditionally loses the BST optimization.",
+        time: "O(n) worst, often less",
+        space: "O(h)",
+        tags: ["range query", "bst pruning", "inclusive bounds"]
+      },
+      {
+        title: "Sum Root to Leaf Numbers",
+        category: "DFS",
+        primary: "Path Accumulator",
+        secondary: ["Recursive DFS"],
+        desc: "Each root-to-leaf path spells a base-10 number. Return the sum of all such numbers across the tree.",
+        insight: "Carry the numeric prefix, not a string: at each step the new path value is <code>curr * 10 + node.val</code>.",
+        viz: "rootLeafSum",
+        code: `<span class="kw">int</span> next <span class="op">=</span> curr <span class="op">*</span> <span class="nm">10</span> <span class="op">+</span> node.val;\n<span class="kw">if</span> (node.left <span class="op">==</span> <span class="kw">null</span> <span class="op">&amp;&amp;</span> node.right <span class="op">==</span> <span class="kw">null</span>)\n  <span class="kw">return</span> next;\n<span class="kw">return</span> <span class="fn">dfs</span>(node.left, next)\n     <span class="op">+</span> <span class="fn">dfs</span>(node.right, next);`,
+        gotcha: "Avoid building strings and parsing at leaves. That adds unnecessary memory and can overflow parser limits earlier than integer accumulation logic.",
+        time: "O(n)",
+        space: "O(h)",
+        tags: ["path value", "digit accumulation", "leaf condition"]
+      },
+      {
+        title: "Find Largest Value in Each Tree Row",
+        category: "BFS",
+        primary: "Level Max",
+        secondary: ["DFS by Depth"],
+        desc: "Compute the maximum value for every depth level in the tree. This is a direct level-order aggregation problem.",
+        insight: "Reset the running maximum exactly once per level, not once per node.",
+        viz: "largestRow",
+        code: `<span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="nm">0</span>; i <span class="op">&lt;</span> size; i<span class="op">++</span>) {\n  TreeNode node <span class="op">=</span> q.poll();\n  levelMax <span class="op">=</span> Math.max(levelMax, node.val);\n  <span class="kw">if</span> (node.left <span class="op">!=</span> <span class="kw">null</span>) q.add(node.left);\n  <span class="kw">if</span> (node.right <span class="op">!=</span> <span class="kw">null</span>) q.add(node.right);\n}\nans.add(levelMax);`,
+        gotcha: "Reinitialize <code>levelMax</code> before processing each level. Reusing the previous level's max is the classic bug here.",
+        time: "O(n)",
+        space: "O(w)",
+        tags: ["level order", "aggregation", "row maximum"]
+      },
+      {
+        title: "Trim a BST",
+        category: "BST",
+        primary: "Recursive Prune",
+        secondary: ["Post-filter Tree"],
+        desc: "Remove all nodes whose values fall outside [low, high] while preserving the relative structure of the remaining BST nodes.",
+        insight: "If a node is too small, its entire left subtree is too small; if too large, its entire right subtree is too large.",
+        viz: "trimBST",
+        code: `<span class="kw">if</span> (root <span class="op">==</span> <span class="kw">null</span>) <span class="kw">return</span> <span class="kw">null</span>;\n<span class="kw">if</span> (root.val <span class="op">&lt;</span> low) <span class="kw">return</span> <span class="fn">trimBST</span>(root.right, low, high);\n<span class="kw">if</span> (root.val <span class="op">&gt;</span> high) <span class="kw">return</span> <span class="fn">trimBST</span>(root.left, low, high);\nroot.left <span class="op">=</span> <span class="fn">trimBST</span>(root.left, low, high);\nroot.right <span class="op">=</span> <span class="fn">trimBST</span>(root.right, low, high);\n<span class="kw">return</span> root;`,
+        gotcha: "Return the trimmed child directly when the root is outside range. Keeping the original root and only trimming its children produces an invalid answer.",
+        time: "O(n)",
+        space: "O(h)",
+        tags: ["bst pruning", "range keep", "structural preserve"]
+      },
+      {
+        title: "BST Insert / Delete",
+        category: "BST",
+        primary: "Recursive Cases",
+        secondary: ["Successor Replace"],
+        desc: "Support insertion and deletion in a BST. Deletion is the real interview target because it has three structural cases.",
+        insight: "Deleting a node with two children reduces to replacing its value with the inorder successor, then deleting that successor from the right subtree.",
+        viz: "insertDelete",
+        code: `<span class="kw">if</span> (key <span class="op">&lt;</span> root.val) root.left <span class="op">=</span> <span class="fn">delete</span>(root.left, key);\n<span class="kw">else if</span> (key <span class="op">&gt;</span> root.val) root.right <span class="op">=</span> <span class="fn">delete</span>(root.right, key);\n<span class="kw">else</span> {\n  <span class="kw">if</span> (root.left <span class="op">==</span> <span class="kw">null</span>) <span class="kw">return</span> root.right;\n  <span class="kw">if</span> (root.right <span class="op">==</span> <span class="kw">null</span>) <span class="kw">return</span> root.left;\n  root.val <span class="op">=</span> <span class="fn">min</span>(root.right);\n  root.right <span class="op">=</span> <span class="fn">delete</span>(root.right, root.val);\n}`,
+        gotcha: "After copying in the successor value, you still must delete that successor node from <code>root.right</code>; otherwise you leave a duplicate behind.",
+        time: "O(h)",
+        space: "O(h)",
+        tags: ["bst delete", "three cases", "successor replacement"]
+      },
+      {
+        title: "BST Predecessor / Successor",
+        category: "BST",
+        primary: "Candidate Walk",
+        secondary: ["Child Subtree Rule"],
+        desc: "Find the closest smaller and larger values around a BST node. The answer can come either from a child subtree or from tracked ancestors.",
+        insight: "Turning right improves predecessor; turning left improves successor. Child subtrees give the exact answer only when they exist.",
+        viz: "predSucc",
+        code: `<span class="kw">while</span> (root <span class="op">!=</span> <span class="kw">null</span>) {\n  <span class="kw">if</span> (key <span class="op">&lt;</span> root.val) { succ <span class="op">=</span> root; root <span class="op">=</span> root.left; }\n  <span class="kw">else if</span> (key <span class="op">&gt;</span> root.val) { pred <span class="op">=</span> root; root <span class="op">=</span> root.right; }\n  <span class="kw">else</span> {\n    <span class="kw">if</span> (root.left <span class="op">!=</span> <span class="kw">null</span>) pred <span class="op">=</span> <span class="fn">rightmost</span>(root.left);\n    <span class="kw">if</span> (root.right <span class="op">!=</span> <span class="kw">null</span>) succ <span class="op">=</span> <span class="fn">leftmost</span>(root.right);\n    <span class="kw">break</span>;\n  }\n}`,
+        gotcha: "Do not search only the child subtrees. When <code>root.left</code> or <code>root.right</code> is missing, the answer comes from the last ancestor candidate.",
+        time: "O(h)",
+        space: "O(1)",
+        tags: ["predecessor", "successor", "ancestor candidate"]
+      }
+    ];
+
+    const accents = ["var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)", "var(--c5)"];
+
+    function viz(name) {
+      const a = "var(--accent)";
+      switch (name) {
+        case "successor":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <line x1="140" y1="18" x2="92" y2="42" stroke="#bbb" stroke-width="1.5"/>
+            <line x1="140" y1="18" x2="188" y2="42" stroke="#bbb" stroke-width="1.5"/>
+            <line x1="92" y1="42" x2="118" y2="68" stroke="#bbb" stroke-width="1.5"/>
+            <circle cx="140" cy="18" r="11" fill="${a}"/><circle cx="92" cy="42" r="11" fill="#fff" stroke="#bbb"/><circle cx="188" cy="42" r="11" fill="#fff" stroke="#bbb"/><circle cx="118" cy="68" r="11" fill="#fff" stroke="${a}" stroke-width="2"/>
+            <text x="140" y="22" font-size="10" text-anchor="middle" fill="#fff">6</text>
+            <text x="92" y="46" font-size="10" text-anchor="middle" fill="#666">3</text>
+            <text x="188" y="46" font-size="10" text-anchor="middle" fill="#666">8</text>
+            <text x="118" y="72" font-size="10" text-anchor="middle" fill="${a}">5</text>
+            <text x="18" y="16" font-size="9" fill="#666">p=5</text>
+            <path d="M118 63 C128 52,132 40,138 29" fill="none" stroke="${a}" stroke-width="2" stroke-dasharray="3 3"/>
+            <text x="150" y="63" font-size="8" fill="${a}">turn left ⇒ succ=6</text>
+          </svg>`;
+        case "traversals":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <line x1="140" y1="20" x2="95" y2="48" stroke="#bbb" stroke-width="1.4"/>
+            <line x1="140" y1="20" x2="185" y2="48" stroke="#bbb" stroke-width="1.4"/>
+            <circle cx="140" cy="20" r="10" fill="${a}"/><circle cx="95" cy="48" r="10" fill="#fff" stroke="#bbb"/><circle cx="185" cy="48" r="10" fill="#fff" stroke="#bbb"/>
+            <text x="140" y="24" font-size="10" text-anchor="middle" fill="#fff">2</text>
+            <text x="95" y="52" font-size="10" text-anchor="middle" fill="#666">1</text>
+            <text x="185" y="52" font-size="10" text-anchor="middle" fill="#666">3</text>
+            <text x="18" y="18" font-size="8" fill="#666">Pre: N L R</text>
+            <text x="18" y="34" font-size="8" fill="#666">In : L N R</text>
+            <text x="18" y="50" font-size="8" fill="#666">Post: L R N</text>
+            <rect x="160" y="66" width="82" height="16" rx="8" fill="#fff" stroke="#bbb"/>
+            <text x="201" y="77" font-size="8" text-anchor="middle" fill="${a}">BFS: queue by level</text>
+          </svg>`;
+        case "maxPath":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <line x1="140" y1="18" x2="105" y2="43" stroke="#bbb" stroke-width="1.4"/>
+            <line x1="140" y1="18" x2="175" y2="43" stroke="#bbb" stroke-width="1.4"/>
+            <line x1="175" y1="43" x2="152" y2="69" stroke="#bbb" stroke-width="1.4"/>
+            <line x1="175" y1="43" x2="198" y2="69" stroke="#bbb" stroke-width="1.4"/>
+            <circle cx="140" cy="18" r="10" fill="#fff" stroke="#bbb"/><circle cx="105" cy="43" r="10" fill="#fff" stroke="#bbb"/><circle cx="175" cy="43" r="10" fill="${a}"/><circle cx="152" cy="69" r="10" fill="${a}" opacity=".85"/><circle cx="198" cy="69" r="10" fill="${a}" opacity=".85"/>
+            <text x="140" y="22" font-size="9" text-anchor="middle" fill="#666">-10</text>
+            <text x="105" y="47" font-size="9" text-anchor="middle" fill="#666">9</text>
+            <text x="175" y="47" font-size="9" text-anchor="middle" fill="#fff">20</text>
+            <text x="152" y="73" font-size="9" text-anchor="middle" fill="#fff">15</text>
+            <text x="198" y="73" font-size="9" text-anchor="middle" fill="#fff">7</text>
+            <path d="M152 69 L175 43 L198 69" fill="none" stroke="${a}" stroke-width="2.6"/>
+            <text x="22" y="85" font-size="8" fill="${a}">best = left + node + right, return single branch up</text>
+          </svg>`;
+        case "subtreeSum":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <line x1="140" y1="22" x2="102" y2="48" stroke="#bbb" stroke-width="1.4"/>
+            <line x1="140" y1="22" x2="178" y2="48" stroke="#bbb" stroke-width="1.4"/>
+            <circle cx="140" cy="22" r="10" fill="${a}"/><circle cx="102" cy="48" r="10" fill="#fff" stroke="#bbb"/><circle cx="178" cy="48" r="10" fill="#fff" stroke="#bbb"/>
+            <text x="140" y="26" font-size="9" text-anchor="middle" fill="#fff">4</text>
+            <text x="102" y="52" font-size="9" text-anchor="middle" fill="#666">2</text>
+            <text x="178" y="52" font-size="9" text-anchor="middle" fill="#666">5</text>
+            <rect x="72" y="64" width="60" height="16" rx="8" fill="#fff" stroke="#bbb"/>
+            <rect x="148" y="64" width="60" height="16" rx="8" fill="#fff" stroke="#bbb"/>
+            <text x="102" y="75" font-size="8" text-anchor="middle" fill="#666">sum=2</text>
+            <text x="178" y="75" font-size="8" text-anchor="middle" fill="#666">sum=5</text>
+            <text x="140" y="90" font-size="8" text-anchor="middle" fill="${a}">subtree sum = L + R + node = 11</text>
+          </svg>`;
+        case "sameTree":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <text x="56" y="16" font-size="8" fill="#666">tree A</text><text x="188" y="16" font-size="8" fill="#666">tree B</text>
+            <line x1="70" y1="22" x2="48" y2="48" stroke="#bbb" stroke-width="1.4"/><line x1="70" y1="22" x2="92" y2="48" stroke="#bbb" stroke-width="1.4"/>
+            <line x1="202" y1="22" x2="180" y2="48" stroke="#bbb" stroke-width="1.4"/><line x1="202" y1="22" x2="224" y2="48" stroke="#bbb" stroke-width="1.4"/>
+            <circle cx="70" cy="22" r="10" fill="${a}"/><circle cx="48" cy="48" r="10" fill="#fff" stroke="#bbb"/><circle cx="92" cy="48" r="10" fill="#fff" stroke="#bbb"/>
+            <circle cx="202" cy="22" r="10" fill="${a}"/><circle cx="180" cy="48" r="10" fill="#fff" stroke="#bbb"/><circle cx="224" cy="48" r="10" fill="#fff" stroke="#bbb"/>
+            <text x="70" y="26" font-size="9" text-anchor="middle" fill="#fff">1</text><text x="48" y="52" font-size="9" text-anchor="middle" fill="#666">2</text><text x="92" y="52" font-size="9" text-anchor="middle" fill="#666">3</text>
+            <text x="202" y="26" font-size="9" text-anchor="middle" fill="#fff">1</text><text x="180" y="52" font-size="9" text-anchor="middle" fill="#666">2</text><text x="224" y="52" font-size="9" text-anchor="middle" fill="#666">3</text>
+            <text x="140" y="78" font-size="8" text-anchor="middle" fill="${a}">compare value + shape at every matching position</text>
+          </svg>`;
+        case "maxDepth":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <line x1="135" y1="16" x2="95" y2="42" stroke="#bbb" stroke-width="1.4"/>
+            <line x1="135" y1="16" x2="175" y2="42" stroke="#bbb" stroke-width="1.4"/>
+            <line x1="175" y1="42" x2="200" y2="68" stroke="#bbb" stroke-width="1.4"/>
+            <circle cx="135" cy="16" r="10" fill="${a}"/><circle cx="95" cy="42" r="10" fill="#fff" stroke="#bbb"/><circle cx="175" cy="42" r="10" fill="#fff" stroke="#bbb"/><circle cx="200" cy="68" r="10" fill="${a}" opacity=".85"/>
+            <text x="135" y="20" font-size="9" text-anchor="middle" fill="#fff">3</text><text x="95" y="46" font-size="9" text-anchor="middle" fill="#666">9</text><text x="175" y="46" font-size="9" text-anchor="middle" fill="#666">20</text><text x="200" y="72" font-size="9" text-anchor="middle" fill="#fff">7</text>
+            <text x="20" y="20" font-size="8" fill="#666">d=1</text><text x="20" y="46" font-size="8" fill="#666">d=2</text><text x="20" y="72" font-size="8" fill="${a}">d=3</text>
+            <text x="132" y="90" font-size="8" fill="${a}">depth = 1 + max(left, right)</text>
+          </svg>`;
+        case "invert":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <text x="52" y="14" font-size="8" fill="#666">before</text><text x="190" y="14" font-size="8" fill="#666">after</text>
+            <line x1="64" y1="22" x2="42" y2="48" stroke="#bbb" stroke-width="1.4"/><line x1="64" y1="22" x2="86" y2="48" stroke="#bbb" stroke-width="1.4"/>
+            <line x1="216" y1="22" x2="194" y2="48" stroke="#bbb" stroke-width="1.4"/><line x1="216" y1="22" x2="238" y2="48" stroke="#bbb" stroke-width="1.4"/>
+            <circle cx="64" cy="22" r="10" fill="#fff" stroke="#bbb"/><circle cx="42" cy="48" r="10" fill="${a}"/><circle cx="86" cy="48" r="10" fill="#fff" stroke="#bbb"/>
+            <circle cx="216" cy="22" r="10" fill="#fff" stroke="#bbb"/><circle cx="194" cy="48" r="10" fill="#fff" stroke="#bbb"/><circle cx="238" cy="48" r="10" fill="${a}"/>
+            <text x="64" y="26" font-size="9" text-anchor="middle" fill="#666">4</text><text x="42" y="52" font-size="9" text-anchor="middle" fill="#fff">2</text><text x="86" y="52" font-size="9" text-anchor="middle" fill="#666">7</text>
+            <text x="216" y="26" font-size="9" text-anchor="middle" fill="#666">4</text><text x="194" y="52" font-size="9" text-anchor="middle" fill="#666">7</text><text x="238" y="52" font-size="9" text-anchor="middle" fill="#fff">2</text>
+            <path d="M118 36 L162 36" stroke="${a}" stroke-width="2" marker-end="url(#arrInv)"/>
+            <defs><marker id="arrInv" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="${a}"/></marker></defs>
+            <text x="140" y="31" font-size="8" text-anchor="middle" fill="${a}">swap children</text>
+          </svg>`;
+        case "preInBuild":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <text x="18" y="18" font-size="8" fill="#666">pre: [3, 9, 20, ...]</text>
+            <text x="18" y="42" font-size="8" fill="#666">in : [9, 3, 15, 20, 7]</text>
+            <rect x="74" y="26" width="22" height="18" rx="4" fill="${a}"/><text x="85" y="38" font-size="8" text-anchor="middle" fill="#fff">3</text>
+            <line x1="85" y1="50" x2="85" y2="78" stroke="${a}" stroke-width="1.5"/>
+            <line x1="54" y1="78" x2="116" y2="78" stroke="#bbb" stroke-width="1.5"/>
+            <text x="54" y="72" font-size="8" fill="#666">left</text><text x="90" y="72" font-size="8" fill="${a}">root</text><text x="106" y="72" font-size="8" fill="#666">right</text>
+            <text x="141" y="80" font-size="8" fill="${a}">inorder split decides subtree bounds</text>
+          </svg>`;
+        case "inPostBuild":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <text x="18" y="18" font-size="8" fill="#666">in : [9, 3, 15, 20, 7]</text>
+            <text x="18" y="42" font-size="8" fill="#666">post: [..., 20, 3]</text>
+            <rect x="122" y="26" width="22" height="18" rx="4" fill="${a}"/><text x="133" y="38" font-size="8" text-anchor="middle" fill="#fff">3</text>
+            <line x1="133" y1="50" x2="133" y2="77" stroke="${a}" stroke-width="1.5"/>
+            <path d="M133 62 C150 52,176 52,196 62" fill="none" stroke="${a}" stroke-width="1.5"/>
+            <text x="199" y="68" font-size="8" fill="${a}">build right first</text>
+            <text x="18" y="80" font-size="8" fill="#666">consume postorder from end ⇒ root, right, left</text>
+          </svg>`;
+        case "serialize":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <line x1="56" y1="22" x2="38" y2="48" stroke="#bbb" stroke-width="1.4"/><line x1="56" y1="22" x2="74" y2="48" stroke="#bbb" stroke-width="1.4"/>
+            <circle cx="56" cy="22" r="10" fill="${a}"/><circle cx="38" cy="48" r="10" fill="#fff" stroke="#bbb"/><circle cx="74" cy="48" r="10" fill="#fff" stroke="#bbb"/>
+            <text x="56" y="26" font-size="9" text-anchor="middle" fill="#fff">1</text><text x="38" y="52" font-size="9" text-anchor="middle" fill="#666">2</text><text x="74" y="52" font-size="9" text-anchor="middle" fill="#666">3</text>
+            <path d="M102 34 L134 34" stroke="${a}" stroke-width="2" marker-end="url(#arrSer)"/>
+            <defs><marker id="arrSer" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="${a}"/></marker></defs>
+            <rect x="144" y="22" width="116" height="24" rx="6" fill="#fff" stroke="#bbb"/>
+            <text x="202" y="37" font-size="8" text-anchor="middle" fill="${a}">1,2,null,null,3,...</text>
+            <text x="18" y="82" font-size="8" fill="#666">preorder + null markers preserves exact shape</text>
+          </svg>`;
+        case "validateBST":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <line x1="140" y1="18" x2="100" y2="42" stroke="#bbb" stroke-width="1.4"/><line x1="140" y1="18" x2="180" y2="42" stroke="#bbb" stroke-width="1.4"/>
+            <line x1="180" y1="42" x2="160" y2="68" stroke="#bbb" stroke-width="1.4"/>
+            <circle cx="140" cy="18" r="10" fill="#fff" stroke="#bbb"/><circle cx="100" cy="42" r="10" fill="#fff" stroke="#bbb"/><circle cx="180" cy="42" r="10" fill="#fff" stroke="#bbb"/><circle cx="160" cy="68" r="10" fill="${a}"/>
+            <text x="140" y="22" font-size="9" text-anchor="middle" fill="#666">5</text><text x="100" y="46" font-size="9" text-anchor="middle" fill="#666">1</text><text x="180" y="46" font-size="9" text-anchor="middle" fill="#666">4</text><text x="160" y="72" font-size="9" text-anchor="middle" fill="#fff">3</text>
+            <text x="18" y="18" font-size="8" fill="#666">allowed range</text>
+            <rect x="18" y="26" width="86" height="14" rx="7" fill="#fff" stroke="#bbb"/><text x="61" y="36" font-size="8" text-anchor="middle" fill="${a}">(-∞, 5)</text>
+            <rect x="18" y="46" width="86" height="14" rx="7" fill="#fff" stroke="#bbb"/><text x="61" y="56" font-size="8" text-anchor="middle" fill="${a}">(5, +∞)</text>
+            <text x="170" y="88" font-size="8" fill="${a}">3 is in right subtree of 5 ⇒ invalid</text>
+          </svg>`;
+        case "vertical":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <line x1="52" y1="12" x2="52" y2="82" stroke="#ddd"/><line x1="92" y1="12" x2="92" y2="82" stroke="#ddd"/><line x1="132" y1="12" x2="132" y2="82" stroke="#ddd"/><line x1="172" y1="12" x2="172" y2="82" stroke="#ddd"/>
+            <circle cx="132" cy="18" r="10" fill="${a}"/><circle cx="92" cy="44" r="10" fill="#fff" stroke="#bbb"/><circle cx="172" cy="44" r="10" fill="#fff" stroke="#bbb"/><circle cx="132" cy="70" r="10" fill="${a}" opacity=".85"/>
+            <text x="132" y="22" font-size="9" text-anchor="middle" fill="#fff">3</text><text x="92" y="48" font-size="9" text-anchor="middle" fill="#666">9</text><text x="172" y="48" font-size="9" text-anchor="middle" fill="#666">20</text><text x="132" y="74" font-size="9" text-anchor="middle" fill="#fff">15</text>
+            <text x="18" y="15" font-size="8" fill="#666">col</text>
+            <text x="184" y="84" font-size="8" fill="${a}">sort by (col, row, val)</text>
+          </svg>`;
+        case "kthSmallest":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <rect x="26" y="18" width="34" height="52" rx="6" fill="#fff" stroke="#bbb"/>
+            <rect x="31" y="54" width="24" height="11" rx="3" fill="${a}"/><rect x="31" y="40" width="24" height="11" rx="3" fill="#e8e8e8"/><rect x="31" y="26" width="24" height="11" rx="3" fill="#e8e8e8"/>
+            <text x="43" y="62" font-size="7" text-anchor="middle" fill="#fff">1</text><text x="43" y="48" font-size="7" text-anchor="middle" fill="#666">2</text><text x="43" y="34" font-size="7" text-anchor="middle" fill="#666">3</text>
+            <path d="M64 44 L108 44" stroke="${a}" stroke-width="2" marker-end="url(#arrK)"/>
+            <defs><marker id="arrK" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="${a}"/></marker></defs>
+            <text x="118" y="39" font-size="8" fill="${a}">pop inorder</text>
+            <rect x="154" y="26" width="88" height="18" rx="9" fill="#fff" stroke="#bbb"/><text x="198" y="38" font-size="8" text-anchor="middle" fill="#666">k-- on visit</text>
+            <rect x="154" y="50" width="88" height="18" rx="9" fill="${a}"/><text x="198" y="62" font-size="8" text-anchor="middle" fill="#fff">k == 0 ⇒ answer</text>
+          </svg>`;
+        case "connectPerfect":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <circle cx="90" cy="24" r="10" fill="#fff" stroke="#bbb"/><circle cx="150" cy="24" r="10" fill="#fff" stroke="#bbb"/>
+            <circle cx="60" cy="58" r="10" fill="${a}"/><circle cx="120" cy="58" r="10" fill="${a}"/><circle cx="180" cy="58" r="10" fill="${a}"/><circle cx="240" cy="58" r="10" fill="${a}"/>
+            <line x1="90" y1="24" x2="60" y2="58" stroke="#bbb" stroke-width="1.4"/><line x1="90" y1="24" x2="120" y2="58" stroke="#bbb" stroke-width="1.4"/><line x1="150" y1="24" x2="180" y2="58" stroke="#bbb" stroke-width="1.4"/><line x1="150" y1="24" x2="240" y2="58" stroke="#bbb" stroke-width="1.4"/>
+            <path d="M60 58 L120 58 L180 58 L240 58" fill="none" stroke="${a}" stroke-width="2.2" marker-end="url(#arrP)"/>
+            <defs><marker id="arrP" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="${a}"/></marker></defs>
+            <text x="128" y="83" font-size="8" fill="${a}">left→right and right→next.left</text>
+          </svg>`;
+        case "connectAny":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <circle cx="52" cy="24" r="10" fill="#fff" stroke="#bbb"/><circle cx="132" cy="24" r="10" fill="#fff" stroke="#bbb"/><circle cx="212" cy="24" r="10" fill="#fff" stroke="#bbb"/>
+            <path d="M52 24 L132 24 L212 24" fill="none" stroke="#999" stroke-width="1.6" stroke-dasharray="4 3"/>
+            <circle cx="84" cy="62" r="10" fill="${a}"/><circle cx="158" cy="62" r="10" fill="${a}"/><circle cx="236" cy="62" r="10" fill="${a}"/>
+            <path d="M84 62 L158 62 L236 62" fill="none" stroke="${a}" stroke-width="2.2" marker-end="url(#arrA)"/>
+            <defs><marker id="arrA" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="${a}"/></marker></defs>
+            <text x="18" y="84" font-size="8" fill="${a}">walk current level with next, stitch children with prev</text>
+          </svg>`;
+        case "zigzag":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <rect x="24" y="16" width="46" height="16" rx="8" fill="${a}"/><text x="47" y="27" font-size="8" text-anchor="middle" fill="#fff">[3]</text>
+            <path d="M86 24 H168" stroke="#bbb" stroke-width="1.6" marker-end="url(#arrZ1)"/><defs><marker id="arrZ1" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#999"/></marker></defs>
+            <rect x="182" y="16" width="58" height="16" rx="8" fill="#fff" stroke="#bbb"/><text x="211" y="27" font-size="8" text-anchor="middle" fill="#666">L → R</text>
+            <rect x="24" y="42" width="66" height="16" rx="8" fill="#fff" stroke="#bbb"/><text x="57" y="53" font-size="8" text-anchor="middle" fill="#666">[9,20]</text>
+            <path d="M168 50 H86" stroke="${a}" stroke-width="1.6" marker-end="url(#arrZ2)"/><defs><marker id="arrZ2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="${a}"/></marker></defs>
+            <rect x="182" y="42" width="58" height="16" rx="8" fill="${a}"/><text x="211" y="53" font-size="8" text-anchor="middle" fill="#fff">R → L</text>
+            <text x="18" y="84" font-size="8" fill="#666">queue order same; only output insertion direction flips</text>
+          </svg>`;
+        case "lcaBST":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <line x1="140" y1="20" x2="88" y2="50" stroke="#bbb" stroke-width="1.4"/><line x1="140" y1="20" x2="192" y2="50" stroke="#bbb" stroke-width="1.4"/>
+            <circle cx="140" cy="20" r="11" fill="${a}"/><circle cx="88" cy="50" r="10" fill="#fff" stroke="#bbb"/><circle cx="192" cy="50" r="10" fill="#fff" stroke="#bbb"/>
+            <text x="140" y="24" font-size="9" text-anchor="middle" fill="#fff">6</text><text x="88" y="54" font-size="9" text-anchor="middle" fill="#666">2</text><text x="192" y="54" font-size="9" text-anchor="middle" fill="#666">8</text>
+            <text x="66" y="76" font-size="8" fill="#666">p=2</text><text x="196" y="76" font-size="8" fill="#666">q=8</text>
+            <text x="118" y="88" font-size="8" fill="${a}">first split point = LCA</text>
+          </svg>`;
+        case "lcaBT":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <line x1="140" y1="16" x2="94" y2="42" stroke="#bbb" stroke-width="1.4"/><line x1="140" y1="16" x2="186" y2="42" stroke="#bbb" stroke-width="1.4"/>
+            <circle cx="140" cy="16" r="10" fill="${a}"/><circle cx="94" cy="42" r="10" fill="#fff" stroke="#bbb"/><circle cx="186" cy="42" r="10" fill="#fff" stroke="#bbb"/>
+            <text x="140" y="20" font-size="9" text-anchor="middle" fill="#fff">3</text><text x="94" y="46" font-size="9" text-anchor="middle" fill="#666">5</text><text x="186" y="46" font-size="9" text-anchor="middle" fill="#666">1</text>
+            <rect x="34" y="64" width="50" height="14" rx="7" fill="#fff" stroke="#bbb"/><text x="59" y="74" font-size="8" text-anchor="middle" fill="#666">left=1</text>
+            <rect x="116" y="64" width="50" height="14" rx="7" fill="${a}"/><text x="141" y="74" font-size="8" text-anchor="middle" fill="#fff">mid=0</text>
+            <rect x="198" y="64" width="50" height="14" rx="7" fill="#fff" stroke="#bbb"/><text x="223" y="74" font-size="8" text-anchor="middle" fill="#666">right=1</text>
+            <text x="98" y="90" font-size="8" fill="${a}">left + right + mid ≥ 2 ⇒ answer</text>
+          </svg>`;
+        case "iterator":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <rect x="28" y="18" width="36" height="56" rx="6" fill="#fff" stroke="#bbb"/>
+            <rect x="34" y="53" width="24" height="12" rx="3" fill="${a}"/><rect x="34" y="38" width="24" height="12" rx="3" fill="#e8e8e8"/><rect x="34" y="23" width="24" height="12" rx="3" fill="#e8e8e8"/>
+            <text x="46" y="62" font-size="7" text-anchor="middle" fill="#fff">3</text><text x="46" y="47" font-size="7" text-anchor="middle" fill="#666">7</text><text x="46" y="32" font-size="7" text-anchor="middle" fill="#666">15</text>
+            <path d="M76 46 L126 46" stroke="${a}" stroke-width="2" marker-end="url(#arrIt)"/><defs><marker id="arrIt" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="${a}"/></marker></defs>
+            <text x="132" y="40" font-size="8" fill="${a}">pop next</text>
+            <text x="132" y="54" font-size="8" fill="#666">pushLeft(right)</text>
+            <text x="18" y="86" font-size="8" fill="#666">stack stores current inorder frontier</text>
+          </svg>`;
+        case "rightView":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <circle cx="88" cy="18" r="10" fill="#fff" stroke="#bbb"/><circle cx="66" cy="44" r="10" fill="#fff" stroke="#bbb"/><circle cx="110" cy="44" r="10" fill="${a}"/><circle cx="122" cy="70" r="10" fill="${a}"/>
+            <line x1="88" y1="18" x2="66" y2="44" stroke="#bbb" stroke-width="1.4"/><line x1="88" y1="18" x2="110" y2="44" stroke="#bbb" stroke-width="1.4"/><line x1="110" y1="44" x2="122" y2="70" stroke="#bbb" stroke-width="1.4"/>
+            <text x="88" y="22" font-size="9" text-anchor="middle" fill="#666">1</text><text x="66" y="48" font-size="9" text-anchor="middle" fill="#666">2</text><text x="110" y="48" font-size="9" text-anchor="middle" fill="#fff">3</text><text x="122" y="74" font-size="9" text-anchor="middle" fill="#fff">4</text>
+            <path d="M154 18 L154 74" stroke="${a}" stroke-width="2" stroke-dasharray="4 3"/>
+            <text x="164" y="48" font-size="8" fill="${a}">take last node per level</text>
+          </svg>`;
+        case "largestBST":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <line x1="140" y1="18" x2="98" y2="42" stroke="#bbb" stroke-width="1.4"/><line x1="140" y1="18" x2="182" y2="42" stroke="#bbb" stroke-width="1.4"/>
+            <circle cx="140" cy="18" r="10" fill="#fff" stroke="#bbb"/><circle cx="98" cy="42" r="10" fill="${a}"/><circle cx="182" cy="42" r="10" fill="#fff" stroke="#bbb"/>
+            <text x="140" y="22" font-size="9" text-anchor="middle" fill="#666">10</text><text x="98" y="46" font-size="9" text-anchor="middle" fill="#fff">5</text><text x="182" y="46" font-size="9" text-anchor="middle" fill="#666">15</text>
+            <rect x="56" y="62" width="84" height="16" rx="8" fill="${a}"/><text x="98" y="73" font-size="8" text-anchor="middle" fill="#fff">min,max,size</text>
+            <rect x="156" y="62" width="84" height="16" rx="8" fill="#fff" stroke="#bbb"/><text x="198" y="73" font-size="8" text-anchor="middle" fill="#666">invalid sentinels</text>
+          </svg>`;
+        case "rangeSum":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <rect x="18" y="14" width="108" height="14" rx="7" fill="#fff" stroke="#bbb"/><text x="72" y="24" font-size="8" text-anchor="middle" fill="#666">range [7, 15]</text>
+            <line x1="140" y1="32" x2="104" y2="58" stroke="#bbb" stroke-width="1.4"/><line x1="140" y1="32" x2="176" y2="58" stroke="#bbb" stroke-width="1.4"/>
+            <circle cx="140" cy="32" r="10" fill="${a}"/><circle cx="104" cy="58" r="10" fill="${a}"/><circle cx="176" cy="58" r="10" fill="${a}"/>
+            <text x="140" y="36" font-size="9" text-anchor="middle" fill="#fff">10</text><text x="104" y="62" font-size="9" text-anchor="middle" fill="#fff">7</text><text x="176" y="62" font-size="9" text-anchor="middle" fill="#fff">15</text>
+            <text x="196" y="24" font-size="8" fill="#666">node &lt; low ⇒ go right</text>
+            <text x="196" y="38" font-size="8" fill="#666">node &gt; high ⇒ go left</text>
+            <text x="162" y="84" font-size="8" fill="${a}">sum only in-range nodes</text>
+          </svg>`;
+        case "rootLeafSum":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <line x1="80" y1="18" x2="56" y2="46" stroke="#bbb" stroke-width="1.4"/><line x1="80" y1="18" x2="104" y2="46" stroke="#bbb" stroke-width="1.4"/>
+            <circle cx="80" cy="18" r="10" fill="${a}"/><circle cx="56" cy="46" r="10" fill="#fff" stroke="#bbb"/><circle cx="104" cy="46" r="10" fill="#fff" stroke="#bbb"/>
+            <text x="80" y="22" font-size="9" text-anchor="middle" fill="#fff">1</text><text x="56" y="50" font-size="9" text-anchor="middle" fill="#666">2</text><text x="104" y="50" font-size="9" text-anchor="middle" fill="#666">3</text>
+            <rect x="146" y="16" width="110" height="18" rx="9" fill="#fff" stroke="#bbb"/><text x="201" y="28" font-size="8" text-anchor="middle" fill="#666">curr = 0</text>
+            <rect x="146" y="40" width="110" height="18" rx="9" fill="${a}"/><text x="201" y="52" font-size="8" text-anchor="middle" fill="#fff">1 → 12 / 13</text>
+            <text x="146" y="82" font-size="8" fill="${a}">curr = curr * 10 + digit</text>
+          </svg>`;
+        case "largestRow":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <rect x="24" y="16" width="52" height="14" rx="7" fill="${a}"/><text x="50" y="26" font-size="8" text-anchor="middle" fill="#fff">lvl0 max=1</text>
+            <rect x="24" y="40" width="58" height="14" rx="7" fill="#fff" stroke="#bbb"/><text x="53" y="50" font-size="8" text-anchor="middle" fill="#666">lvl1 max=3</text>
+            <rect x="24" y="64" width="64" height="14" rx="7" fill="${a}" opacity=".9"/><text x="56" y="74" font-size="8" text-anchor="middle" fill="#fff">lvl2 max=9</text>
+            <text x="120" y="28" font-size="8" fill="#666">reset per level</text>
+            <text x="120" y="52" font-size="8" fill="#666">scan all nodes in level</text>
+            <text x="120" y="76" font-size="8" fill="${a}">append once after loop</text>
+          </svg>`;
+        case "trimBST":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <rect x="18" y="14" width="102" height="14" rx="7" fill="#fff" stroke="#bbb"/><text x="69" y="24" font-size="8" text-anchor="middle" fill="#666">keep [1, 3]</text>
+            <line x1="140" y1="24" x2="104" y2="52" stroke="#bbb" stroke-width="1.4"/><line x1="140" y1="24" x2="176" y2="52" stroke="#bbb" stroke-width="1.4"/>
+            <circle cx="140" cy="24" r="10" fill="#fff" stroke="#bbb"/><circle cx="104" cy="52" r="10" fill="${a}"/><circle cx="176" cy="52" r="10" fill="#fff" stroke="#bbb"/>
+            <text x="140" y="28" font-size="9" text-anchor="middle" fill="#666">3</text><text x="104" y="56" font-size="9" text-anchor="middle" fill="#fff">2</text><text x="176" y="56" font-size="9" text-anchor="middle" fill="#666">4</text>
+            <path d="M176 52 L202 52" stroke="#FF3B00" stroke-width="2"/><text x="206" y="56" font-size="8" fill="#FF3B00">drop > high</text>
+            <text x="118" y="84" font-size="8" fill="${a}">node < low ⇒ return right, node > high ⇒ return left</text>
+          </svg>`;
+        case "insertDelete":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <circle cx="76" cy="22" r="10" fill="#fff" stroke="#bbb"/><circle cx="52" cy="50" r="10" fill="#fff" stroke="#bbb"/><circle cx="100" cy="50" r="10" fill="${a}"/>
+            <line x1="76" y1="22" x2="52" y2="50" stroke="#bbb" stroke-width="1.4"/><line x1="76" y1="22" x2="100" y2="50" stroke="#bbb" stroke-width="1.4"/>
+            <text x="76" y="26" font-size="9" text-anchor="middle" fill="#666">5</text><text x="52" y="54" font-size="9" text-anchor="middle" fill="#666">3</text><text x="100" y="54" font-size="9" text-anchor="middle" fill="#fff">7</text>
+            <path d="M126 34 L154 34" stroke="${a}" stroke-width="2" marker-end="url(#arrDel)"/><defs><marker id="arrDel" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="${a}"/></marker></defs>
+            <rect x="164" y="18" width="88" height="18" rx="9" fill="#fff" stroke="#bbb"/><text x="208" y="30" font-size="8" text-anchor="middle" fill="#666">0 / 1 child</text>
+            <rect x="164" y="44" width="88" height="18" rx="9" fill="${a}"/><text x="208" y="56" font-size="8" text-anchor="middle" fill="#fff">2 child → successor</text>
+          </svg>`;
+        case "predSucc":
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="95" rx="8" fill="#F5F3EE"/>
+            <line x1="140" y1="18" x2="98" y2="46" stroke="#bbb" stroke-width="1.4"/><line x1="140" y1="18" x2="182" y2="46" stroke="#bbb" stroke-width="1.4"/>
+            <circle cx="140" cy="18" r="10" fill="#fff" stroke="#bbb"/><circle cx="98" cy="46" r="10" fill="${a}"/><circle cx="182" cy="46" r="10" fill="${a}" opacity=".9"/>
+            <text x="140" y="22" font-size="9" text-anchor="middle" fill="#666">10</text><text x="98" y="50" font-size="9" text-anchor="middle" fill="#fff">pred</text><text x="182" y="50" font-size="9" text-anchor="middle" fill="#fff">succ</text>
+            <text x="18" y="20" font-size="8" fill="#666">turn right ⇒ better pred</text>
+            <text x="18" y="36" font-size="8" fill="#666">turn left ⇒ better succ</text>
+            <text x="18" y="84" font-size="8" fill="${a}">or use rightmost(left subtree) / leftmost(right subtree)</text>
+          </svg>`;
+        default:
+          return `<svg viewBox="0 0 280 95" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="95" rx="8" fill="#F5F3EE"/><text x="140" y="48" text-anchor="middle" font-size="10" fill="${a}">viz</text></svg>`;
+      }
+    }
+
+    function renderCard(card, index) {
+      const accent = accents[index % accents.length];
+      const num = String(index + 1).padStart(2, "0");
+      const chips = [
+        `<span class="ap-chip primary">${card.primary}</span>`,
+        ...card.secondary.map(s => `<span class="ap-chip">${s}</span>`)
+      ].join("");
+
+      const tags = card.tags.map(tag => `<span class="pattern-tag">${tag}</span>`).join("");
+
+      return `
+        <article class="card" style="--accent:${accent}">
+          <div class="card-stripe"></div>
+          <div class="card-head">
+            <div class="card-num">${num} / ${card.category}</div>
+            <h2 class="card-title">${card.title}</h2>
+          </div>
+          <div class="approaches">${chips}</div>
+          <div class="problem-desc">${card.desc}</div>
+          <div class="card-viz">${viz(card.viz)}</div>
+          <div class="card-body">
+            <div class="insight-block">
+              <div class="block-label">Key Insight</div>
+              <div class="insight-text">${card.insight}</div>
+            </div>
+            <div class="mini-code">
+              <div class="titlebar">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+                <span class="code-label">Critical Logic</span>
+              </div>
+              <pre><code>${card.code}</code></pre>
+            </div>
+            <div class="gotcha">
+              <div class="gotcha-title">Gotcha</div>
+              <p>${card.gotcha}</p>
+            </div>
+            <div class="complexity-row">
+              <span class="cx-badge">Time: ${card.time}</span>
+              <span class="cx-badge">Space: ${card.space}</span>
+            </div>
+          </div>
+          <div class="pattern-row">${tags}</div>
+        </article>
+      `;
+    }
+
+    document.getElementById("problem-count").textContent = String(cards.length);
+    document.getElementById("grid").innerHTML = cards.map(renderCard).join("");
+  </script>
+</body>
+</html>
