@@ -169,6 +169,7 @@
   .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
   .g2x1{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+  .stack{display:flex;flex-direction:column;gap:16px}
 
   .card,.vz,.cw,.sum{
     background:var(--panel);
@@ -452,8 +453,140 @@
   </div>
 
   <div class="sec">
-    <div class="eye">④ Pattern Library</div>
-    <div class="stitle"><span class="snum">4</span> Five Patterns That Cover Most Tree Interviews</div>
+    <div class="eye">④ Memorize</div>
+    <div class="stitle"><span class="snum">4</span> Three Snippets Worth Memorizing</div>
+    <div class="stack">
+      <div class="g2">
+        <div class="cw">
+          <div class="ctop">
+            <span class="dr"></span><span class="dy"></span><span class="dg"></span>
+            <span class="clang">level-order.java</span>
+          </div>
+          <pre><span class="kw">Queue</span>&lt;TreeNode&gt; q <span class="op">=</span> <span class="kw">new</span> LinkedList&lt;&gt;();
+q.add(root);
+
+<span class="kw">while</span> (!q.isEmpty()) {
+  <span class="kw">int</span> size <span class="op">=</span> q.size();
+  <span class="kw">for</span> (<span class="kw">int</span> i <span class="op">=</span> <span class="nm">0</span>; i <span class="op">&lt;</span> size; i<span class="op">++</span>) {
+    TreeNode node <span class="op">=</span> q.poll();
+    <span class="cm">// process this level's node</span>
+    <span class="kw">if</span> (node.left <span class="op">!=</span> <span class="kw">null</span>) q.add(node.left);
+    <span class="kw">if</span> (node.right <span class="op">!=</span> <span class="kw">null</span>) q.add(node.right);
+  }
+}</pre>
+        </div>
+        <div class="vz">
+          <div class="vz-lbl">Level order frontier</div>
+          <svg viewBox="0 0 480 190" xmlns="http://www.w3.org/2000/svg">
+            <rect width="480" height="190" fill="#FFF"/>
+            <text x="28" y="28" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#777">queue holds exactly one level frontier</text>
+            <rect x="28" y="42" width="120" height="30" rx="8" fill="#EEF0FF" stroke="#D7DBF8"/>
+            <rect x="162" y="42" width="120" height="30" rx="8" fill="#FFF4EF" stroke="#F6D4C7"/>
+            <rect x="296" y="42" width="120" height="30" rx="8" fill="#EEF9F2" stroke="#CFE9D7"/>
+            <text x="88" y="61" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#1A1AFF">level k nodes</text>
+            <text x="222" y="61" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#FF3B00">process size times</text>
+            <text x="356" y="61" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#007A3D">enqueue children</text>
+            <line x1="98" y1="92" x2="150" y2="126" stroke="#C8C3BA" stroke-width="2"/>
+            <line x1="98" y1="92" x2="230" y2="126" stroke="#C8C3BA" stroke-width="2"/>
+            <line x1="98" y1="92" x2="310" y2="126" stroke="#C8C3BA" stroke-width="2"/>
+            <circle cx="98" cy="92" r="18" fill="#1A1AFF"/>
+            <circle cx="150" cy="126" r="16" fill="#fff" stroke="#C8C3BA" stroke-width="2"/>
+            <circle cx="230" cy="126" r="16" fill="#fff" stroke="#C8C3BA" stroke-width="2"/>
+            <circle cx="310" cy="126" r="16" fill="#fff" stroke="#C8C3BA" stroke-width="2"/>
+            <text x="98" y="98" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#fff">q</text>
+            <text x="150" y="132" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#666">a</text>
+            <text x="230" y="132" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#666">b</text>
+            <text x="310" y="132" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#666">c</text>
+            <text x="28" y="168" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#007A3D">size snapshot is the level boundary</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="g2">
+        <div class="vz">
+          <div class="vz-lbl">BST walk with candidate updates</div>
+          <svg viewBox="0 0 480 190" xmlns="http://www.w3.org/2000/svg">
+            <rect width="480" height="190" fill="#FFF"/>
+            <line x1="244" y1="34" x2="174" y2="82" stroke="#C8C3BA" stroke-width="2"/>
+            <line x1="244" y1="34" x2="314" y2="82" stroke="#C8C3BA" stroke-width="2"/>
+            <line x1="174" y1="82" x2="212" y2="132" stroke="#C8C3BA" stroke-width="2"/>
+            <circle cx="244" cy="34" r="18" fill="#fff" stroke="#C8C3BA" stroke-width="2"/>
+            <circle cx="174" cy="82" r="18" fill="#fff" stroke="#C8C3BA" stroke-width="2"/>
+            <circle cx="314" cy="82" r="18" fill="#fff" stroke="#C8C3BA" stroke-width="2"/>
+            <circle cx="212" cy="132" r="18" fill="#1A1AFF"/>
+            <text x="244" y="40" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#666">6</text>
+            <text x="174" y="88" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#666">3</text>
+            <text x="314" y="88" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#666">8</text>
+            <text x="212" y="138" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#fff">5</text>
+            <path d="M212 118 C220 96,228 74,238 50" fill="none" stroke="#FF3B00" stroke-width="2.4" stroke-dasharray="4 4"/>
+            <rect x="42" y="24" width="110" height="24" rx="12" fill="#FFF4EF"/>
+            <text x="97" y="40" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#FF3B00">turn left ⇒ save 6</text>
+            <rect x="300" y="138" width="132" height="24" rx="12" fill="#EEF9F2"/>
+            <text x="366" y="154" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#007A3D">turn right ⇒ discard 3</text>
+          </svg>
+        </div>
+        <div class="cw">
+          <div class="ctop">
+            <span class="dr"></span><span class="dy"></span><span class="dg"></span>
+            <span class="clang">bst-walk.java</span>
+          </div>
+          <pre>TreeNode cand <span class="op">=</span> <span class="kw">null</span>;
+
+<span class="kw">while</span> (root <span class="op">!=</span> <span class="kw">null</span>) {
+  <span class="kw">if</span> (target <span class="op">&lt;</span> root.val) {
+    cand <span class="op">=</span> root;      <span class="cm">// possible successor</span>
+    root <span class="op">=</span> root.left;
+  } <span class="kw">else</span> {
+    root <span class="op">=</span> root.right;
+  }
+}
+
+<span class="kw">return</span> cand;</pre>
+        </div>
+      </div>
+
+      <div class="g2">
+        <div class="cw">
+          <div class="ctop">
+            <span class="dr"></span><span class="dy"></span><span class="dg"></span>
+            <span class="clang">build-tree.java</span>
+          </div>
+          <pre><span class="kw">int</span> val <span class="op">=</span> preorder[preIdx<span class="op">++</span>];
+TreeNode root <span class="op">=</span> <span class="kw">new</span> TreeNode(val);
+<span class="kw">int</span> mid <span class="op">=</span> inPos.get(val);
+
+root.left <span class="op">=</span> <span class="fn">build</span>(left, mid);
+root.right <span class="op">=</span> <span class="fn">build</span>(mid <span class="op">+</span> <span class="nm">1</span>, right);
+
+<span class="cm">// preorder picks root</span>
+<span class="cm">// inorder splits subtree</span></pre>
+        </div>
+        <div class="vz">
+          <div class="vz-lbl">Preorder + inorder rebuild</div>
+          <svg viewBox="0 0 480 190" xmlns="http://www.w3.org/2000/svg">
+            <rect width="480" height="190" fill="#FFF"/>
+            <text x="28" y="32" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#777">pre = [3, 9, 20, 15, 7]</text>
+            <text x="28" y="56" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#777">in  = [9, 3, 15, 20, 7]</text>
+            <rect x="112" y="76" width="30" height="24" rx="6" fill="#1A1AFF"/>
+            <text x="127" y="92" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" fill="#fff">3</text>
+            <line x1="127" y1="106" x2="127" y2="144" stroke="#1A1AFF" stroke-width="2"/>
+            <line x1="62" y1="144" x2="192" y2="144" stroke="#C8C3BA" stroke-width="2"/>
+            <text x="62" y="136" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#666">left subtree</text>
+            <text x="117" y="136" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#1A1AFF">root</text>
+            <text x="150" y="136" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#666">right subtree</text>
+            <rect x="264" y="78" width="142" height="26" rx="13" fill="#EEF9F2"/>
+            <text x="335" y="95" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#007A3D">mid index splits bounds</text>
+            <rect x="264" y="116" width="142" height="26" rx="13" fill="#FFF4EF"/>
+            <text x="335" y="133" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#FF3B00">next preorder item is next root</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="eye">⑤ Pattern Library</div>
+    <div class="stitle"><span class="snum">5</span> Five Patterns That Cover Most Tree Interviews</div>
     <div class="g3">
       <div class="card">
         <div class="card-head">
@@ -513,8 +646,8 @@
   </div>
 
   <div class="sec">
-    <div class="eye">⑤ Checklist</div>
-    <div class="stitle"><span class="snum">5</span> Before You Code</div>
+    <div class="eye">⑥ Checklist</div>
+    <div class="stitle"><span class="snum">6</span> Before You Code</div>
     <div class="sum">
       <div class="sum-head">
         <div class="sum-lbl">Interview Checklist</div>
@@ -535,8 +668,8 @@
   </div>
 
   <div class="sec">
-    <div class="eye">⑥ Deck</div>
-    <div class="stitle"><span class="snum">6</span> Full Trees Revision Deck</div>
+    <div class="eye">⑦ Deck</div>
+    <div class="stitle"><span class="snum">7</span> Full Trees Revision Deck</div>
     <div class="card">
       <div class="card-head">
         <div class="card-lbl">Reference Deck</div>
