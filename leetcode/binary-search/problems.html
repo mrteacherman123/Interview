@@ -246,6 +246,37 @@
     color: var(--ink);
   }
 
+  .invariant-block {
+    border-left: 3px solid var(--ink);
+    background: rgba(0,0,0,0.04);
+    border-radius: 0 10px 10px 0;
+    padding: 10px 12px;
+  }
+
+  .invariant-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+
+  .invariant-text {
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: #444;
+  }
+
+  .invariant-text code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    background: rgba(0,0,0,0.07);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: var(--ink);
+  }
+
   /* MINI CODE */
   .mini-code {
     background: #0F1117;
@@ -944,6 +975,10 @@ Ask: which pointer is carrying the boundary?</div>
         <div class="insight-label">Key Insight</div>
         <div class="insight-text">Search over <strong>value range</strong> [matrix[0][0] … matrix[n-1][n-1]], not indices. For each <code>mid</code>, count elements ≤ mid using a two-pointer sweep row-by-row.</div>
       </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text">Any value below <code>lo</code> is still too small, and <code>hi</code> is kept as a value whose count of elements ≤ it is already at least <code>k</code>.</div>
+      </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
         <pre><span class="cm">// count elements ≤ mid</span>
@@ -1003,6 +1038,10 @@ Ask: which pointer is carrying the boundary?</div>
         <div class="insight-label">Key Insight</div>
         <div class="insight-text">Search over [2 … x/2]. Predicate: <code>mid*mid ≤ x</code>. Find the <strong>largest</strong> mid where this is true → use <code>lo = mid</code> pattern (TTTT'T'FFFF).</div>
       </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text"><code>lo</code> is a valid square root candidate with <code>lo*lo ≤ x</code>, and <code>hi</code> is invalid with <code>hi*hi &gt; x</code>.</div>
+      </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
         <pre><span class="kw">long</span> lo=<span class="nm">0</span>, hi=x/<span class="nm">2</span><span class="op">+</span><span class="nm">1</span>;
@@ -1060,6 +1099,10 @@ Ask: which pointer is carrying the boundary?</div>
       <div class="insight-block">
         <div class="insight-label">Key Insight</div>
         <div class="insight-text">If <code>nums[mid] &gt; nums[mid+1]</code>, a peak exists on the left (including mid). Otherwise, it exists strictly to the right. Boundaries: <code>nums[-1]=nums[n]=−∞</code> guarantees a peak always exists.</div>
+      </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text">The peak index always stays in <code>(l, r]</code>; <code>l</code> is kept on the rising side, and <code>r</code> stays on a side that still contains a peak.</div>
       </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
@@ -1121,6 +1164,10 @@ Ask: which pointer is carrying the boundary?</div>
       <div class="insight-block">
         <div class="insight-label">Key Insight (Two-Phase)</div>
         <div class="insight-text"><strong>Phase 1:</strong> Find pivot (min index) using <code>nums[mid] ≤ nums[last]</code>.<br/><strong>Phase 2:</strong> Target ≥ nums[0]? Binary search left half. Else right half.</div>
+      </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text">Phase 1 keeps the pivot inside the surviving range; phase 2 keeps the target, if it exists, inside exactly one sorted half.</div>
       </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
@@ -1184,6 +1231,10 @@ Ask: which pointer is carrying the boundary?</div>
         <div class="insight-label">Key Insight</div>
         <div class="insight-text">Predicate <code>ok(mid)</code>: is <code>nums[mid] ≤ nums[last]</code>? This is <strong>FFFF'T'TTTT</strong>. We want the <em>first</em> true → use <code>hi = mid</code> and return <code>hi</code> at end.</div>
       </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text"><code>lo</code> is on the false side or is the sentinel <code>-1</code>, while <code>hi</code> is on the true side and still contains the minimum index.</div>
+      </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
         <pre><span class="kw">int</span> lo=<span class="op">-</span><span class="nm">1</span>, hi=nums.length<span class="op">-</span><span class="nm">1</span>;
@@ -1242,6 +1293,10 @@ Ask: which pointer is carrying the boundary?</div>
       <div class="insight-block">
         <div class="insight-label">Key Insight</div>
         <div class="insight-text">Halve the problem each step: <code>x^n = half*half</code> if n even, <code>half*half*x</code> if odd. This achieves O(log n). For negative n: return <code>1 / power(x, |n|)</code>.</div>
+      </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text">Each recursive call still represents the same mathematical goal, <code>x^n</code>; halving <code>n</code> preserves the answer and only changes how you recombine it.</div>
       </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
@@ -1302,6 +1357,10 @@ Ask: which pointer is carrying the boundary?</div>
       <div class="insight-block">
         <div class="insight-label">Key Insight</div>
         <div class="insight-text">Run binary search <strong>twice</strong> with different predicates. <em>Left bound:</em> <code>nums[mid] ≥ target</code> → first occurrence. <em>Right bound:</em> <code>nums[mid] &gt; target</code> → one past last occurrence, subtract 1.</div>
+      </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text">Left search keeps the first index <code>≥ target</code> in <code>[lo, hi)</code>, and right search keeps the first index <code>&gt; target</code> in <code>[lo, hi)</code>.</div>
       </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
@@ -1369,6 +1428,10 @@ Ask: which pointer is carrying the boundary?</div>
         <div class="insight-label">Key Insight</div>
         <div class="insight-text">Binary search on <strong>partition point</strong> of smaller array. Set <code>partY = (x+y+1)/2 − partX</code>. Valid partition: <code>maxLeftX≤minRightY</code> AND <code>maxLeftY≤minRightX</code>.</div>
       </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text">The correct partition is always searched in the smaller array; a valid split keeps exactly half the elements on the left and every left value ≤ every right value.</div>
+      </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
         <pre><span class="kw">int</span> partX = (lo+hi)/<span class="nm">2</span>;
@@ -1433,6 +1496,10 @@ minRX = partX==x  ? INT_MAX : A[partX];
       <div class="insight-block">
         <div class="insight-label">Key Insight (Best O(log n))</div>
         <div class="insight-text">Find left boundary of a window of size k. Predicate: <code>x−arr[mid] &gt; arr[mid+k]−x</code> (raw, not abs!) means window should slide right. Search space: [0, n−k].</div>
+      </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text"><code>[lo, hi]</code> contains only legal window starts, and once a start is proven too far left, every start ≤ it can be discarded too.</div>
       </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
@@ -1502,6 +1569,10 @@ minRX = partX==x  ? INT_MAX : A[partX];
         <div class="insight-label">Key Insight</div>
         <div class="insight-text">Treat the m×n matrix as a <strong>virtual sorted 1D array</strong> of length m*n. Map index: <code>row = idx/n</code>, <code>col = idx%n</code>. Binary search over [0 … m*n−1].</div>
       </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text">The target, if present, stays inside the surviving virtual 1D range, and each mapped comparison removes half of those virtual positions.</div>
+      </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
         <pre><span class="kw">int</span> lo=<span class="nm">0</span>, hi=m<span class="op">*</span>n;
@@ -1564,6 +1635,10 @@ minRX = partX==x  ? INT_MAX : A[partX];
         <div class="insight-label">Key Insight</div>
         <div class="insight-text">At index <code>pivot</code>, the number of missing positives before <code>arr[pivot]</code> is <code>arr[pivot] − pivot − 1</code>. Binary search for the rightmost pivot where this count &lt; k. Answer: <code>left + k</code>.</div>
       </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text">Indices left of <code>left</code> all have missing-count <code>k</code>, and indices right of <code>right</code> all have missing-count ≥ <code>k</code>.</div>
+      </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
         <pre><span class="kw">int</span> left=<span class="nm">0</span>, right=arr.length<span class="op">-</span><span class="nm">1</span>;
@@ -1625,6 +1700,10 @@ minRX = partX==x  ? INT_MAX : A[partX];
         <div class="insight-label">Key Insight</div>
         <div class="insight-text">Quickselect partitions around a pivot and recurses only into the half containing index k — O(n) average. <strong>Randomize first</strong> to avoid O(n²) worst case on sorted input.</div>
       </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text">After partition, pivot index <code>j</code> is in its final sorted position, and the target index <code>k</code> stays inside the surviving range <code>[lo, hi]</code>.</div>
+      </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
         <pre><span class="cm">// partition: nums[hi] is pivot</span>
@@ -1684,6 +1763,10 @@ minRX = partX==x  ? INT_MAX : A[partX];
         <div class="insight-label">Key Insight</div>
         <div class="insight-text">Simulate binary search structurally. Track <code>[ll, hh]</code> — the valid range for a correct element at each position. If <code>ll ≤ nums[mid] ≤ hh</code>, binary search would find it. Recurse, tightening bounds.</div>
       </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text">Each recursive frame carries both the index range binary search would visit and the value range <code>[ll, hh]</code> that still makes an element findable there.</div>
+      </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
         <pre><span class="kw">def</span> <span class="fn">bsearch</span>(lo, hi, ll, hh):
@@ -1739,6 +1822,10 @@ minRX = partX==x  ? INT_MAX : A[partX];
       <div class="insight-block">
         <div class="insight-label">Key Insight</div>
         <div class="insight-text">Identical to #3 (Find Peak Element) but guaranteed mountain shape. Predicate <code>arr[mid] ≥ arr[mid+1]</code> is <strong>TTTT'T'FFFF</strong>. Seek first true → <code>hi = mid</code>, return <code>hi</code>.</div>
+      </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text"><code>lo</code> stays on the ascending side, <code>hi</code> stays on the descending side or at the peak, and the peak index remains in <code>(lo, hi]</code>.</div>
       </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
@@ -1800,6 +1887,10 @@ minRX = partX==x  ? INT_MAX : A[partX];
       <div class="insight-block">
         <div class="insight-label">Key Insight</div>
         <div class="insight-text">Use <code>hi = Integer.MAX_VALUE</code> as sentinel. Predicate <code>ok(mid)</code>: reader.get(mid) is not <code>2147483647</code> (OOB sentinel) AND <code>≤ target</code>. Pattern: <strong>TTTTT'T'FFFF</strong>.</div>
+      </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text"><code>lo</code> is a reachable index with value ≤ target, while <code>hi</code> is either out of bounds or points to a value &gt; target.</div>
       </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
@@ -1867,6 +1958,10 @@ minRX = partX==x  ? INT_MAX : A[partX];
         <div class="insight-label">Key Insight</div>
         <div class="insight-text">Binary search on divisor in [1 … max(nums)]. Predicate: <code>⌈nums[i]/div⌉ sum ≤ threshold</code>. Larger divisor → smaller sum → monotonic. Find smallest divisor where ok is true.</div>
       </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text"><code>lo</code> is still an invalid divisor, and <code>hi</code> is a divisor that already satisfies the threshold.</div>
+      </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
         <pre><span class="kw">int</span> lo=<span class="nm">0</span>, hi=nums[n<span class="op">-</span><span class="nm">1</span>]; <span class="cm">// or 1e6</span>
@@ -1928,6 +2023,10 @@ minRX = partX==x  ? INT_MAX : A[partX];
       <div class="insight-block">
         <div class="insight-label">Key Insight</div>
         <div class="insight-text">Binary search on eating speed k ∈ [1 … 10⁹]. Predicate: <code>∑⌈pile/k⌉ ≤ H</code>. If she can finish at speed k, she can finish at any speed &gt; k (monotonic) → find minimum valid k.</div>
+      </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text"><code>lo</code> is too slow to finish in time, and <code>hi</code> is a speed that already works.</div>
       </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
@@ -2000,6 +2099,10 @@ minRX = partX==x  ? INT_MAX : A[partX];
         <div class="insight-label">Key Insight</div>
         <div class="insight-text">Binary search on ship capacity. Predicate: greedily pack packages sequentially; if adding next package exceeds capacity, start a new day. Check if total days ≤ D. Same structure as Koko.</div>
       </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text"><code>lo</code> is an insufficient capacity, while <code>hi</code> is a capacity that can already ship everything within <code>D</code> days.</div>
+      </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
         <pre><span class="cm">// ok(capacity): greedy simulation</span>
@@ -2066,6 +2169,10 @@ minRX = partX==x  ? INT_MAX : A[partX];
       <div class="insight-block">
         <div class="insight-label">Key Insight</div>
         <div class="insight-text"><strong>Inverse of Ship/Koko</strong>: maximize minimum piece, not minimize maximum. Predicate: can we cut K+1 pieces each with sweetness ≥ mid? Binary search <strong>TTTT'T'FFFF</strong> → return <code>lo</code>.</div>
+      </div>
+      <div class="invariant-block">
+        <div class="invariant-label">Invariant</div>
+        <div class="invariant-text"><code>lo</code> is a minimum sweetness we can still guarantee, and <code>hi</code> is the first sweetness that is too ambitious.</div>
       </div>
       <div class="mini-code">
         <div class="mini-code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
