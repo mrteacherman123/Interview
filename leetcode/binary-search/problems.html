@@ -121,7 +121,7 @@
 
   /* ---- GRID ---- */
   .grid-wrapper {
-    padding: 48px 40px 80px;
+    padding: 24px 40px 80px;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
@@ -349,6 +349,213 @@
     background: var(--tag-bg);
   }
 
+  /* STUDY GUIDE */
+  .guide-wrap {
+    padding: 36px 40px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .guide-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 20px;
+  }
+
+  .guide-panel {
+    background: var(--panel);
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    padding: 24px;
+  }
+
+  .guide-panel-dark {
+    background:
+      radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 34%),
+      linear-gradient(135deg, #121212 0%, #1E1E1E 100%);
+    border-color: #262626;
+    color: #fff;
+  }
+
+  .guide-kicker {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .guide-panel-dark .guide-kicker { color: rgba(255,255,255,0.45); }
+
+  .guide-title {
+    font-family: 'Epilogue', sans-serif;
+    font-size: clamp(24px, 3vw, 34px);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+
+  .guide-copy {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #4A4A4A;
+  }
+
+  .guide-panel-dark .guide-copy { color: rgba(255,255,255,0.78); }
+
+  .guide-copy code,
+  .mistake-item code,
+  .atlas-ref {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    background: rgba(0,0,0,0.07);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: inherit;
+  }
+
+  .guide-panel-dark .guide-copy code {
+    background: rgba(255,255,255,0.12);
+  }
+
+  .signal-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .signal-pill {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7);
+  }
+
+  .boundary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .boundary-card {
+    background: var(--tag-bg);
+    border-radius: 14px;
+    padding: 16px;
+    border: 1px solid var(--border);
+  }
+
+  .boundary-card h3 {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    margin-bottom: 8px;
+  }
+
+  .boundary-card p {
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 10px;
+  }
+
+  .boundary-card pre {
+    background: #0F1117;
+    color: #D0D7DE;
+    border-radius: 10px;
+    padding: 12px 13px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    line-height: 1.65;
+    overflow-x: auto;
+  }
+
+  .atlas-panel,
+  .mistakes-panel {
+    background: var(--panel);
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    padding: 24px;
+  }
+
+  .atlas-title {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.6px;
+    margin-bottom: 16px;
+  }
+
+  .atlas-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .atlas-card {
+    background: linear-gradient(180deg, #FFFFFF 0%, #F9F7F2 100%);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    border-top-width: 4px;
+  }
+
+  .atlas-card:nth-child(1) { border-top-color: var(--c1); }
+  .atlas-card:nth-child(2) { border-top-color: var(--c9); }
+  .atlas-card:nth-child(3) { border-top-color: var(--c3); }
+  .atlas-card:nth-child(4) { border-top-color: var(--c6); }
+
+  .atlas-card h3 {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    margin-bottom: 8px;
+  }
+
+  .atlas-card p {
+    font-size: 12.5px;
+    line-height: 1.58;
+    color: #5B5B5B;
+    margin-bottom: 12px;
+  }
+
+  .atlas-ref {
+    display: inline-block;
+    line-height: 1.7;
+    background: var(--tag-bg);
+  }
+
+  .mistake-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .mistake-item {
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 15px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #555;
+  }
+
+  .mistake-item strong {
+    display: block;
+    font-size: 12px;
+    letter-spacing: 0.4px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
   /* page footer */
   .page-footer {
     background: var(--ink);
@@ -365,6 +572,24 @@
   .page-footer span { color: rgba(255,255,255,0.6); }
   .page-footer a { color: rgba(255,255,255,0.5); text-decoration: none; }
   .page-footer a:hover { color: rgba(255,255,255,0.9); }
+
+  @media(max-width: 1100px) {
+    .guide-grid,
+    .atlas-grid,
+    .mistake-list {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media(max-width: 760px) {
+    .guide-wrap { padding: 28px 20px 0; }
+    .guide-grid,
+    .boundary-grid,
+    .atlas-grid,
+    .mistake-list {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>
 </head>
 <body>
@@ -374,13 +599,105 @@
   <div class="header-eyebrow">Binary Search Mastery — Problem Reference</div>
   <h1>19 Problems.<br/><em>One Pattern.</em></h1>
   <div class="header-meta">
-    <span class="meta-pill">Binary Search on Answer</span>
+    <span class="meta-pill">Answer-Space Search</span>
     <span class="meta-pill">Monotonic Predicate ok(mid)</span>
-    <span class="meta-pill">O(log N) Solutions</span>
-    <span class="meta-pill">Java / Python</span>
+    <span class="meta-pill">First True / Last True</span>
+    <span class="meta-pill">Boundary Playbook</span>
     <a href="index.html" class="back-link">← Pattern Guide</a>
   </div>
 </header>
+
+<!-- STUDY GUIDE -->
+<section class="guide-wrap">
+  <div class="guide-grid">
+    <article class="guide-panel guide-panel-dark">
+      <div class="guide-kicker">Core Idea</div>
+      <div class="guide-title">Search answers, not just arrays.</div>
+      <p class="guide-copy">A lot of "binary search" problems are not really about finding a target index. They are about searching a sorted <em>space of possible answers</em> and asking whether a guess <code>mid</code> is valid. If <code>ok(mid)</code> flips only once, binary search can find that boundary quickly.</p>
+      <div class="signal-row">
+        <span class="signal-pill">speed</span>
+        <span class="signal-pill">capacity</span>
+        <span class="signal-pill">divisor</span>
+        <span class="signal-pill">partition</span>
+        <span class="signal-pill">pivot</span>
+        <span class="signal-pill">window start</span>
+      </div>
+    </article>
+
+    <article class="guide-panel">
+      <div class="guide-kicker">Boundary Template</div>
+      <div class="boundary-grid">
+        <div class="boundary-card">
+          <h3>First true = minimum feasible</h3>
+          <p>Use when the predicate looks like <code>FFFFTTTT</code>. This is the common "smallest speed / capacity / divisor that works" form.</p>
+          <pre>while (lo &lt; hi) {
+  mid = lo + (hi - lo) / 2;
+  if (ok(mid)) hi = mid;
+  else lo = mid + 1;
+}</pre>
+        </div>
+        <div class="boundary-card">
+          <h3>Last true = maximum valid</h3>
+          <p>Use when the predicate looks like <code>TTTTFFFF</code>. This is the "largest answer that still works" form.</p>
+          <pre>while (lo + 1 &lt; hi) {
+  mid = lo + (hi - lo) / 2;
+  if (ok(mid)) lo = mid;
+  else hi = mid;
+}</pre>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <section class="atlas-panel">
+    <div class="guide-kicker">Pattern Atlas</div>
+    <div class="atlas-title">Map the problem before you code.</div>
+    <div class="atlas-grid">
+      <article class="atlas-card">
+        <h3>Search a value range</h3>
+        <p>Guess an answer and check feasibility or count how many values land on one side of <code>mid</code>.</p>
+        <span class="atlas-ref">#1 matrix kth, #2 sqrt, #11 kth missing, #16 divisor, #17 Koko, #18 ship, #19 chocolate</span>
+      </article>
+      <article class="atlas-card">
+        <h3>Search a boundary</h3>
+        <p>The data is already sorted, or can be treated like it is. You are really finding a left edge, right edge, or valid window start.</p>
+        <span class="atlas-ref">#7 first/last, #9 k closest, #10 2D matrix, #15 unknown size</span>
+      </article>
+      <article class="atlas-card">
+        <h3>Slope, pivot, or partition</h3>
+        <p>The signal comes from local structure: sorted half, descending slope, pivot side, or a partition validity check.</p>
+        <span class="atlas-ref">#3 peak, #4 rotated search, #5 rotated min, #8 median, #14 mountain peak</span>
+      </article>
+      <article class="atlas-card">
+        <h3>Halving as the main weapon</h3>
+        <p>These are binary-search-adjacent. The win still comes from repeatedly cutting the search or recursion space in half.</p>
+        <span class="atlas-ref">#6 pow, #12 kth smallest unsorted, #13 coincidence search</span>
+      </article>
+    </div>
+  </section>
+
+  <section class="mistakes-panel">
+    <div class="guide-kicker">Pitfalls Checklist</div>
+    <div class="mistake-list">
+      <div class="mistake-item">
+        <strong>Decide the boundary before the loop.</strong>
+        Ask whether you want the first true, last true, or an exact hit. That choice determines the loop shape and whether you return <code>lo</code> or <code>hi</code>.
+      </div>
+      <div class="mistake-item">
+        <strong>Make the predicate monotonic.</strong>
+        If <code>ok(mid)</code> can flip back and forth, binary search is the wrong tool. Feasibility must move in one direction only.
+      </div>
+      <div class="mistake-item">
+        <strong>Search the right domain.</strong>
+        Some problems search indices, others search answer values like speed, capacity, divisor, or partition count.
+      </div>
+      <div class="mistake-item">
+        <strong>Respect sentinels and overflow.</strong>
+        Use <code>long</code> for <code>mid * mid</code>, watch <code>hi = n</code> sentinel cases, and be explicit about virtual boundaries like <code>-∞</code>.
+      </div>
+    </div>
+  </section>
+</section>
 
 <!-- CARDS GRID -->
 <div class="grid-wrapper">
@@ -1581,7 +1898,7 @@ minRX = partX==x  ? INT_MAX : A[partX];
 <!-- PAGE FOOTER -->
 <footer class="page-footer">
   <div>Binary Search Pattern Reference — 19 Classic Problems</div>
-  <div>All solutions: <span>O(log N)</span> time · <span>O(1)</span> space (where possible) · <a href="index.html">← Pattern Guide</a></div>
+  <div>Most solutions: <span>O(log N)</span> or answer-space halving · <span>O(1)</span> extra space when applicable · <a href="index.html">← Pattern Guide</a></div>
 </footer>
 
 </body>
