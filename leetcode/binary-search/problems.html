@@ -359,8 +359,9 @@
 
   .guide-grid {
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
+    grid-template-columns: 1fr;
     gap: 20px;
+    align-items: start;
   }
 
   .guide-panel {
@@ -425,7 +426,14 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 16px;
+    margin-top: 14px;
+  }
+
+  .core-layout {
+    display: grid;
+    grid-template-columns: 1.15fr 0.95fr;
+    gap: 18px;
+    align-items: start;
   }
 
   .signal-pill {
@@ -438,6 +446,42 @@
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.12);
     color: rgba(255,255,255,0.7);
+  }
+
+  .core-flow {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .core-step {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 12px 12px 13px;
+  }
+
+  .core-step-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.42);
+    margin-bottom: 8px;
+  }
+
+  .core-step-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    margin-bottom: 6px;
+    color: #fff;
+  }
+
+  .core-step-copy {
+    font-size: 12px;
+    line-height: 1.58;
+    color: rgba(255,255,255,0.72);
   }
 
   .boundary-grid {
@@ -476,6 +520,95 @@
     font-size: 11px;
     line-height: 1.65;
     overflow-x: auto;
+  }
+
+  .range-guide {
+    margin-top: 14px;
+    background: linear-gradient(180deg, #FCFBF8 0%, #F4F0E8 100%);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  .range-guide h3 {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    margin-bottom: 8px;
+  }
+
+  .range-guide p {
+    font-size: 12.5px;
+    line-height: 1.62;
+    color: #555;
+    margin-bottom: 12px;
+  }
+
+  .range-guide p:last-of-type {
+    margin-bottom: 14px;
+  }
+
+  .range-rule-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1.15fr 1fr;
+    gap: 12px;
+  }
+
+  .range-rule {
+    background: rgba(255,255,255,0.72);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 12px;
+    line-height: 1.58;
+    color: #555;
+  }
+
+  .range-rule strong {
+    display: block;
+    font-size: 11.5px;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .range-rule code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    background: rgba(0,0,0,0.07);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  .mini-diagram {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    background: #11161F;
+    color: #D0D7DE;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    line-height: 1.55;
+    overflow-x: auto;
+  }
+
+  .mini-diagram .g { color: #50FA7B; }
+  .mini-diagram .r { color: #FF6B35; }
+  .mini-diagram .y { color: #F1FA8C; }
+  .mini-diagram .b { color: #8BE9FD; }
+
+  .range-takeaway {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #FFF7E9;
+    border: 1px solid #E7D4A8;
+    font-size: 12.5px;
+    line-height: 1.62;
+    color: #5B5140;
+  }
+
+  .range-takeaway strong {
+    color: var(--ink);
   }
 
   .atlas-panel,
@@ -574,7 +707,6 @@
   .page-footer a:hover { color: rgba(255,255,255,0.9); }
 
   @media(max-width: 1100px) {
-    .guide-grid,
     .atlas-grid,
     .mistake-list {
       grid-template-columns: 1fr 1fr;
@@ -583,8 +715,9 @@
 
   @media(max-width: 760px) {
     .guide-wrap { padding: 28px 20px 0; }
-    .guide-grid,
+    .core-layout,
     .boundary-grid,
+    .range-rule-grid,
     .atlas-grid,
     .mistake-list {
       grid-template-columns: 1fr;
@@ -613,14 +746,35 @@
     <article class="guide-panel guide-panel-dark">
       <div class="guide-kicker">Core Idea</div>
       <div class="guide-title">Search answers, not just arrays.</div>
-      <p class="guide-copy">A lot of "binary search" problems are not really about finding a target index. They are about searching a sorted <em>space of possible answers</em> and asking whether a guess <code>mid</code> is valid. If <code>ok(mid)</code> flips only once, binary search can find that boundary quickly.</p>
-      <div class="signal-row">
-        <span class="signal-pill">speed</span>
-        <span class="signal-pill">capacity</span>
-        <span class="signal-pill">divisor</span>
-        <span class="signal-pill">partition</span>
-        <span class="signal-pill">pivot</span>
-        <span class="signal-pill">window start</span>
+      <div class="core-layout">
+        <div>
+          <p class="guide-copy">A lot of "binary search" problems are not really about finding a target index. They are about searching a sorted <em>space of possible answers</em> and asking whether a guess <code>mid</code> is valid. If <code>ok(mid)</code> flips only once, binary search can find that boundary quickly.</p>
+          <div class="signal-row">
+            <span class="signal-pill">speed</span>
+            <span class="signal-pill">capacity</span>
+            <span class="signal-pill">divisor</span>
+            <span class="signal-pill">partition</span>
+            <span class="signal-pill">pivot</span>
+            <span class="signal-pill">window start</span>
+          </div>
+        </div>
+        <div class="core-flow">
+          <div class="core-step">
+            <div class="core-step-num">01 / Spot It</div>
+            <div class="core-step-title">Search space is conceptual</div>
+            <div class="core-step-copy">You are guessing speed, capacity, divisor, partition size, or boundary index rather than looking for an exact element.</div>
+          </div>
+          <div class="core-step">
+            <div class="core-step-num">02 / Ask</div>
+            <div class="core-step-title">Can <code>mid</code> work?</div>
+            <div class="core-step-copy">Write <code>ok(mid)</code> so it returns yes or no. The predicate must flip only once across the whole search domain.</div>
+          </div>
+          <div class="core-step">
+            <div class="core-step-num">03 / Shrink</div>
+            <div class="core-step-title">Keep the right boundary</div>
+            <div class="core-step-copy">If you want minimum feasible, keep the first true. If you want maximum valid, keep the last true.</div>
+          </div>
+        </div>
       </div>
     </article>
 
@@ -644,6 +798,53 @@
   if (ok(mid)) lo = mid;
   else hi = mid;
 }</pre>
+        </div>
+      </div>
+      <div class="range-guide">
+        <h3>How to pick <code>lo</code> and <code>hi</code></h3>
+        <p>Pick bounds that make your <em>invariant</em> obvious. The real question is not "what are the smallest and biggest numbers?" It is "what does <code>lo</code> mean, and what does <code>hi</code> mean, before the loop starts?"</p>
+        <p>Sometimes both ends are valid candidates. Sometimes one side is just a sentinel boundary used to keep the false/true split clean.</p>
+        <div class="range-rule-grid">
+          <div class="range-rule">
+            <strong>Both ends are real candidates</strong>
+            Use this when the search domain itself is already clean.
+            For <code>sqrt(x)</code>, <code>lo = 0</code> is a definitely valid answer and <code>hi = x/2 + 1</code> is a definitely invalid upper cap.
+            For <code>k</code>-closest elements, the only legal window starts are <code>0..n-k</code>, so use <code>lo = 0</code>, <code>hi = n-k</code>.
+            <div class="mini-diagram"><span class="b">sqrt(x)</span>
+<span class="g">valid</span> ........ <span class="y">answer</span> ........ <span class="r">invalid</span>
+lo=0                                 hi=x/2+1
+
+<span class="b">k-closest windows</span>
+[0] [1] [2] ... [n-k]
+^                 ^
+lo                hi</div>
+          </div>
+          <div class="range-rule">
+            <strong>One side is a virtual sentinel</strong>
+            Use this when you want a guaranteed false/true boundary just outside the array.
+            For rotated minimum, <code>lo = -1</code> means "virtual false before index 0" and <code>hi = n-1</code> is guaranteed true, so returning <code>hi</code> makes sense.
+            Likewise, lower-bound searches often use <code>hi = n</code> as a virtual right boundary.
+            <div class="mini-diagram"><span class="b">rotated minimum</span>
+index:  -1   0   1   2   3   4
+ok():   <span class="r">F</span>   <span class="r">F</span>   <span class="r">F</span>   <span class="g">T</span>   <span class="g">T</span>   <span class="g">T</span>
+        ^               ^
+      lo=-1          hi=first T
+
+lo is fence, not answer</div>
+          </div>
+          <div class="range-rule">
+            <strong>Return the side that stores the answer</strong>
+            If the invariant is "lo = last valid", return <code>lo</code>.
+            If the invariant is "hi = first valid" or "hi = surviving candidate", return <code>hi</code>.
+            The other side may exist only to fence the search.
+            <div class="mini-diagram"><span class="b">last valid</span>  <span class="g">T T T</span> <span class="r">F F</span>   -&gt; return <span class="g">lo</span>
+<span class="b">first valid</span> <span class="r">F F F</span> <span class="g">T T</span>   -&gt; return <span class="g">hi</span>
+
+Ask: which pointer is carrying the boundary?</div>
+          </div>
+        </div>
+        <div class="range-takeaway">
+          <strong>Rule of thumb:</strong> write the invariant in one sentence before coding. Example: "For <code>sqrt</code>, <code>lo</code> is valid and <code>hi</code> is invalid." Example: "For rotated minimum, <code>lo</code> is on the false side and <code>hi</code> is on the true side." Once that sentence is clear, the initial values usually become obvious.
         </div>
       </div>
     </article>
